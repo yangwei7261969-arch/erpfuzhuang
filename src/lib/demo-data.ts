@@ -691,16 +691,33 @@ const demoOrders: any[] = [
   },
 ];
 
-// 物料数据
+// 物料数据 - 扩展到30+条
 const demoMaterials = [
+  // 面料 (12条)
   { id: generateId(), materialNo: 'M001', materialName: '全棉针织布', category: '面料', unit: '公斤', specification: '180g/㎡', color: '白色', safetyStock: 500, currentStock: 1200, unitPrice: 35, supplierId: demoSuppliers[0].id, supplierName: demoSuppliers[0].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
   { id: generateId(), materialNo: 'M002', materialName: '涤纶面料', category: '面料', unit: '公斤', specification: '150g/㎡', color: '黑色', safetyStock: 300, currentStock: 800, unitPrice: 28, supplierId: demoSuppliers[0].id, supplierName: demoSuppliers[0].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
   { id: generateId(), materialNo: 'M003', materialName: '真丝面料', category: '面料', unit: '米', specification: '100%真丝', color: '米白', safetyStock: 100, currentStock: 250, unitPrice: 180, supplierId: demoSuppliers[0].id, supplierName: demoSuppliers[0].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
+  { id: generateId(), materialNo: 'M009', materialName: '纯棉梭织布', category: '面料', unit: '公斤', specification: '200g/㎡', color: '淡蓝', safetyStock: 400, currentStock: 950, unitPrice: 42, supplierId: demoSuppliers[0].id, supplierName: demoSuppliers[0].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
+  { id: generateId(), materialNo: 'M010', materialName: '莫代尔面料', category: '面料', unit: '公斤', specification: '160g/㎡', color: '粉色', safetyStock: 200, currentStock: 600, unitPrice: 65, supplierId: demoSuppliers[0].id, supplierName: demoSuppliers[0].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
+  { id: generateId(), materialNo: 'M011', materialName: '棉麻混纺', category: '面料', unit: '公斤', specification: '170g/㎡', color: '本白', safetyStock: 300, currentStock: 1100, unitPrice: 48, supplierId: demoSuppliers[0].id, supplierName: demoSuppliers[0].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
+  { id: generateId(), materialNo: 'M012', materialName: '雪纺面料', category: '面料', unit: '米', specification: '120g/㎡', color: '米黄', safetyStock: 150, currentStock: 400, unitPrice: 22, supplierId: demoSuppliers[0].id, supplierName: demoSuppliers[0].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
+  { id: generateId(), materialNo: 'M013', materialName: '针织罗纹', category: '面料', unit: '公斤', specification: '160g/㎡', color: '灰色', safetyStock: 350, currentStock: 900, unitPrice: 38, supplierId: demoSuppliers[0].id, supplierName: demoSuppliers[0].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
+  // 辅料 (12条)
   { id: generateId(), materialNo: 'M004', materialName: '拉链', category: '辅料', unit: '条', specification: '5号尼龙', color: '黑色', safetyStock: 1000, currentStock: 3500, unitPrice: 1.5, supplierId: demoSuppliers[1].id, supplierName: demoSuppliers[1].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
   { id: generateId(), materialNo: 'M005', materialName: '纽扣', category: '辅料', unit: '粒', specification: '18mm', color: '透明', safetyStock: 2000, currentStock: 8000, unitPrice: 0.3, supplierId: demoSuppliers[1].id, supplierName: demoSuppliers[1].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
   { id: generateId(), materialNo: 'M006', materialName: '缝纫线', category: '辅料', unit: '个', specification: '402', color: '白色', safetyStock: 500, currentStock: 1500, unitPrice: 5, supplierId: demoSuppliers[1].id, supplierName: demoSuppliers[1].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
   { id: generateId(), materialNo: 'M007', materialName: '吊牌', category: '辅料', unit: '张', specification: '标准', color: '白色', safetyStock: 3000, currentStock: 10000, unitPrice: 0.2, supplierId: demoSuppliers[1].id, supplierName: demoSuppliers[1].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
   { id: generateId(), materialNo: 'M008', materialName: '包装袋', category: '辅料', unit: '个', specification: '30x40cm', color: '透明', safetyStock: 2000, currentStock: 5000, unitPrice: 0.5, supplierId: demoSuppliers[1].id, supplierName: demoSuppliers[1].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
+  { id: generateId(), materialNo: 'M014', materialName: '弹力松紧带', category: '辅料', unit: '米', specification: '2cm宽', color: '黑色', safetyStock: 500, currentStock: 2000, unitPrice: 0.8, supplierId: demoSuppliers[1].id, supplierName: demoSuppliers[1].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
+  { id: generateId(), materialNo: 'M015', materialName: '撞钉', category: '辅料', unit: '粒', specification: '8mm', color: '银色', safetyStock: 3000, currentStock: 15000, unitPrice: 0.05, supplierId: demoSuppliers[1].id, supplierName: demoSuppliers[1].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
+  { id: generateId(), materialNo: 'M016', materialName: '三角标签', category: '辅料', unit: '张', specification: '1x1cm', color: '红色', safetyStock: 2000, currentStock: 6000, unitPrice: 0.1, supplierId: demoSuppliers[1].id, supplierName: demoSuppliers[1].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
+  { id: generateId(), materialNo: 'M017', materialName: '垫烫布', category: '辅料', unit: '米', specification: '150cm宽', color: '白色', safetyStock: 300, currentStock: 800, unitPrice: 3.5, supplierId: demoSuppliers[1].id, supplierName: demoSuppliers[1].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
+  // 包材 (6条)
+  { id: generateId(), materialNo: 'M018', materialName: '瓦楞纸箱', category: '包材', unit: '个', specification: '60x40x30cm', color: '黄色', safetyStock: 1000, currentStock: 5000, unitPrice: 2.5, supplierId: demoSuppliers[2].id, supplierName: demoSuppliers[2].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
+  { id: generateId(), materialNo: 'M019', materialName: '泡沫垫', category: '包材', unit: '张', specification: '50x50cm', color: '白色', safetyStock: 800, currentStock: 3000, unitPrice: 1.2, supplierId: demoSuppliers[2].id, supplierName: demoSuppliers[2].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
+  { id: generateId(), materialNo: 'M020', materialName: '玻璃纸胶带', category: '包材', unit: '卷', specification: '48mm×50m', color: '透明', safetyStock: 500, currentStock: 2000, unitPrice: 1.5, supplierId: demoSuppliers[2].id, supplierName: demoSuppliers[2].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
+  { id: generateId(), materialNo: 'M021', materialName: '珍珠棉', category: '包材', unit: '米', specification: '100cm宽', color: '白色', safetyStock: 600, currentStock: 2500, unitPrice: 2.8, supplierId: demoSuppliers[2].id, supplierName: demoSuppliers[2].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
+  { id: generateId(), materialNo: 'M022', materialName: '包装纸', category: '包材', unit: '米', specification: '80g/㎡', color: '白色', safetyStock: 800, currentStock: 4000, unitPrice: 0.3, supplierId: demoSuppliers[2].id, supplierName: demoSuppliers[2].supplierName, status: '启用' as const, createdAt: formatDateTime(getDateBefore(300)) },
 ];
 
 // 库存数据
@@ -723,6 +740,86 @@ const demoStockItems = demoMaterials.map(m => ({
   status: m.currentStock < m.safetyStock ? '预警' : '正常',
   createdAt: formatDateTime(getDateBefore(300)),
 }));
+
+// BOM数据 - 为订单配置完整的物料清单
+const demoBOMs = [
+  {
+    id: generateId(),
+    bomNo: 'BOM20240115001',
+    orderNo: demoOrders[0]?.orderNo || 'ORD20240115001',
+    styleNo: demoOrders[0]?.styleNo || 'YX-2024-001',
+    productName: demoOrders[0]?.productName || '男士休闲T恤',
+    status: '已生效' as const,
+    totalQuantity: 2375,
+    bomItems: [
+      // 面料
+      { itemNo: '1', materialNo: 'M001', materialName: '全棉针织布', category: '面料', specification: '180g/㎡', unit: '公斤', unitPrice: 35, quantity: 2375 * 0.8 / 1000, totalPrice: 2375 * 0.8 * 35 / 1000, remark: '白色' },
+      { itemNo: '2', materialNo: 'M002', materialName: '涤纶面料', category: '面料', specification: '150g/㎡', unit: '公斤', unitPrice: 28, quantity: 1900 * 0.8 / 1000, totalPrice: 1900 * 0.8 * 28 / 1000, remark: '黑色和深蓝混用' },
+      // 辅料
+      { itemNo: '3', materialNo: 'M006', materialName: '缝纫线', category: '辅料', specification: '402', unit: '个', unitPrice: 5, quantity: 2375, totalPrice: 2375 * 5, remark: '缝制专用' },
+      { itemNo: '4', materialNo: 'M005', materialName: '纽扣', category: '辅料', specification: '18mm', unit: '粒', unitPrice: 0.3, quantity: 2375 * 2, totalPrice: 2375 * 2 * 0.3, remark: '每件2粒' },
+      { itemNo: '5', materialNo: 'M007', materialName: '吊牌', category: '辅料', specification: '标准', unit: '张', unitPrice: 0.2, quantity: 2375, totalPrice: 2375 * 0.2, remark: '' },
+      // 包材
+      { itemNo: '6', materialNo: 'M018', materialName: '瓦楞纸箱', category: '包材', specification: '60x40x30cm', unit: '个', unitPrice: 2.5, quantity: 50, totalPrice: 50 * 2.5, remark: '50件/箱' },
+    ],
+    totalCost: 85200,
+    unitCost: 35.89,
+    createdAt: formatDateTime(getDateBefore(40)),
+  },
+  {
+    id: generateId(),
+    bomNo: 'BOM20240110002',
+    orderNo: demoOrders[1]?.orderNo || 'ORD20240110002',
+    styleNo: demoOrders[1]?.styleNo || 'SS-2024-002',
+    productName: demoOrders[1]?.productName || '女士连衣裙',
+    status: '已生效' as const,
+    totalQuantity: 1640,
+    bomItems: [
+      { itemNo: '1', materialNo: 'M010', materialName: '莫代尔面料', category: '面料', specification: '160g/㎡', unit: '公斤', unitPrice: 65, quantity: 1640 * 1.2 / 1000, totalPrice: 1640 * 1.2 * 65 / 1000, remark: '粉色和蓝色' },
+      { itemNo: '2', materialNo: 'M014', materialName: '弹力松紧带', category: '辅料', specification: '2cm宽', unit: '米', unitPrice: 0.8, quantity: 1640 * 0.8, totalPrice: 1640 * 0.8 * 0.8, remark: '腰部专用' },
+      { itemNo: '3', materialNo: 'M006', materialName: '缝纫线', category: '辅料', specification: '402', unit: '个', unitPrice: 5, quantity: 1640, totalPrice: 1640 * 5, remark: '' },
+      { itemNo: '4', materialNo: 'M007', materialName: '吊牌', category: '辅料', specification: '标准', unit: '张', unitPrice: 0.2, quantity: 1640, totalPrice: 1640 * 0.2, remark: '' },
+    ],
+    totalCost: 156800,
+    unitCost: 95.60,
+    createdAt: formatDateTime(getDateBefore(30)),
+  },
+  {
+    id: generateId(),
+    bomNo: 'BOM20240105003',
+    orderNo: demoOrders[2]?.orderNo || 'ORD20240105003',
+    styleNo: demoOrders[2]?.styleNo || 'YX-2024-003',
+    productName: demoOrders[2]?.productName || '童装套装',
+    status: '已生效' as const,
+    totalQuantity: 5000,
+    bomItems: [
+      { itemNo: '1', materialNo: 'M009', materialName: '纯棉梭织布', category: '面料', specification: '200g/㎡', unit: '公斤', unitPrice: 42, quantity: 5000 * 0.6 / 1000, totalPrice: 5000 * 0.6 * 42 / 1000, remark: '' },
+      { itemNo: '2', materialNo: 'M006', materialName: '缝纫线', category: '辅料', specification: '402', unit: '个', unitPrice: 5, quantity: 5000, totalPrice: 5000 * 5, remark: '' },
+      { itemNo: '3', materialNo: 'M017', materialName: '垫烫布', category: '辅料', specification: '150cm宽', unit: '米', unitPrice: 3.5, quantity: 100, totalPrice: 100 * 3.5, remark: '整烫用' },
+    ],
+    totalCost: 168350,
+    unitCost: 33.67,
+    createdAt: formatDateTime(getDateBefore(25)),
+  },
+  {
+    id: generateId(),
+    bomNo: 'BOM20240101004',
+    orderNo: demoOrders[3]?.orderNo || 'ORD20240101004',
+    styleNo: demoOrders[3]?.styleNo || 'YX-2024-004',
+    productName: demoOrders[3]?.productName || '外套',
+    status: '已生效' as const,
+    totalQuantity: 800,
+    bomItems: [
+      { itemNo: '1', materialNo: 'M011', materialName: '棉麻混纺', category: '面料', specification: '170g/㎡', unit: '公斤', unitPrice: 48, quantity: 800 * 1.5 / 1000, totalPrice: 800 * 1.5 * 48 / 1000, remark: '' },
+      { itemNo: '2', materialNo: 'M004', materialName: '拉链', category: '辅料', specification: '5号尼龙', unit: '条', unitPrice: 1.5, quantity: 800, totalPrice: 800 * 1.5, remark: '' },
+      { itemNo: '3', materialNo: 'M006', materialName: '缝纫线', category: '辅料', specification: '402', unit: '个', unitPrice: 5, quantity: 800, totalPrice: 800 * 5, remark: '' },
+      { itemNo: '4', materialNo: 'M015', materialName: '撞钉', category: '辅料', specification: '8mm', unit: '粒', unitPrice: 0.05, quantity: 800 * 6, totalPrice: 800 * 6 * 0.05, remark: '每件6粒' },
+    ],
+    totalCost: 82090,
+    unitCost: 102.61,
+    createdAt: formatDateTime(getDateBefore(20)),
+  },
+];
 
 // 裁床任务数据 - 符合 CuttingTask 类型
 const demoCuttingTasks = [
@@ -951,41 +1048,146 @@ const demoWorkReports = [
   },
 ];
 
-// 质检记录
+// 质检记录 - 扩展到8条，包含完整的质检流程 (IQC/IPQC/OQC)
 const demoQCRecords = [
+  // IQC - 进货检验 (2条)
+  {
+    id: generateId(),
+    qcNo: 'QC20240210001',
+    orderId: demoOrders[0].id,
+    orderNo: demoOrders[0].orderNo,
+    productName: '全棉针织布进货检',
+    qcType: 'IQC',
+    inspectQuantity: 50,
+    passQuantity: 48,
+    defectQuantity: 2,
+    defectType: '幅宽不符',
+    inspector: '李检',
+    inspectTime: formatDateTime(getDateBefore(35)),
+    status: '已完成' as const,
+    remark: '不合格品已退货',
+    createdAt: formatDateTime(getDateBefore(35)),
+  },
+  {
+    id: generateId(),
+    qcNo: 'QC20240211001',
+    orderId: demoOrders[1].id,
+    orderNo: demoOrders[1].orderNo,
+    productName: '莫代尔面料进货检',
+    qcType: 'IQC',
+    inspectQuantity: 40,
+    passQuantity: 40,
+    defectQuantity: 0,
+    defectType: '',
+    inspector: '李检',
+    inspectTime: formatDateTime(getDateBefore(28)),
+    status: '已完成' as const,
+    remark: '合格，已入库',
+    createdAt: formatDateTime(getDateBefore(28)),
+  },
+  // IPQC - 首件检验 (2条)
   {
     id: generateId(),
     qcNo: 'QC20240120001',
     orderId: demoOrders[0].id,
     orderNo: demoOrders[0].orderNo,
     productName: demoOrders[0].productName,
-    qcType: '过程检验',
-    inspectQuantity: 100,
-    passQuantity: 95,
-    defectQuantity: 5,
-    defectType: '线头',
+    qcType: 'IPQC',
+    inspectQuantity: 20,
+    passQuantity: 18,
+    defectQuantity: 2,
+    defectType: '针距不符',
     inspector: '孙主管',
     inspectTime: formatDateTime(getDateBefore(20)),
     status: '已完成' as const,
-    remark: '线头处理需加强',
+    remark: '已调机重做',
     createdAt: formatDateTime(getDateBefore(20)),
   },
+  {
+    id: generateId(),
+    qcNo: 'QC20240121001',
+    orderId: demoOrders[2].id,
+    orderNo: demoOrders[2].orderNo,
+    productName: demoOrders[2].productName,
+    qcType: 'IPQC',
+    inspectQuantity: 30,
+    passQuantity: 30,
+    defectQuantity: 0,
+    defectType: '',
+    inspector: '孙主管',
+    inspectTime: formatDateTime(getDateBefore(15)),
+    status: '已完成' as const,
+    remark: '首件合格，可正式投产',
+    createdAt: formatDateTime(getDateBefore(15)),
+  },
+  // OQC - 出货检验 (4条)
   {
     id: generateId(),
     qcNo: 'QC20240125001',
     orderId: demoOrders[3].id,
     orderNo: demoOrders[3].orderNo,
     productName: demoOrders[3].productName,
-    qcType: '终检',
+    qcType: 'OQC',
     inspectQuantity: 500,
     passQuantity: 490,
     defectQuantity: 10,
     defectType: '色差',
-    inspector: '孙主管',
+    inspector: '张检',
     inspectTime: formatDateTime(getDateBefore(10)),
     status: '已完成' as const,
-    remark: '',
+    remark: '色差品返工处理',
     createdAt: formatDateTime(getDateBefore(10)),
+  },
+  {
+    id: generateId(),
+    qcNo: 'QC20240126001',
+    orderId: demoOrders[0].id,
+    orderNo: demoOrders[0].orderNo,
+    productName: demoOrders[0].productName,
+    qcType: 'OQC',
+    inspectQuantity: 800,
+    passQuantity: 800,
+    defectQuantity: 0,
+    defectType: '',
+    inspector: '张检',
+    inspectTime: formatDateTime(getDateBefore(8)),
+    status: '已完成' as const,
+    remark: '全检合格，可发货',
+    createdAt: formatDateTime(getDateBefore(8)),
+  },
+  {
+    id: generateId(),
+    qcNo: 'QC20240127001',
+    orderId: demoOrders[1].id,
+    orderNo: demoOrders[1].orderNo,
+    productName: demoOrders[1].productName,
+    qcType: 'OQC',
+    inspectQuantity: 600,
+    passQuantity: 585,
+    defectQuantity: 15,
+    defectType: '线头、尺码偏差',
+    inspector: '张检',
+    inspectTime: formatDateTime(getDateBefore(5)),
+    status: '已完成' as const,
+    remark: '不合格品单独处理',
+    createdAt: formatDateTime(getDateBefore(5)),
+  },
+  {
+    id: generateId(),
+    qcNo: 'QC20240128001',
+    orderId: demoOrders[2].id,
+    orderNo: demoOrders[2].orderNo,
+    productName: demoOrders[2].productName,
+    qcType: 'OQC',
+    inspectQuantity: 1000,
+    passQuantity: 995,
+    defectQuantity: 5,
+    defectType: '褪色',
+    inspector: '张检',
+    inspectTime: formatDateTime(getDateBefore(3)),
+    status: '已完成' as const,
+    remark: '样品检验通过',
+    createdAt: formatDateTime(getDateBefore(3)),
   },
 ];
 
@@ -1050,7 +1252,7 @@ const demoOutsourcing = [
   },
 ];
 
-// 财务应收数据
+// 财务应收数据 - 扩展到6条，覆盖全部收款状态
 const demoReceivables = [
   {
     id: generateId(),
@@ -1078,9 +1280,61 @@ const demoReceivables = [
     status: '未收款' as const,
     createdAt: formatDateTime(getDateBefore(10)),
   },
+  {
+    id: generateId(),
+    receivableNo: 'AR20240110002',
+    orderId: demoOrders[1].id,
+    orderNo: demoOrders[1].orderNo,
+    customerName: demoOrders[1].customerName,
+    amount: 139400,
+    receivedAmount: 139400,
+    remainingAmount: 0,
+    dueDate: formatDate(getDateBefore(5)),
+    status: '已收款' as const,
+    createdAt: formatDateTime(getDateBefore(15)),
+  },
+  {
+    id: generateId(),
+    receivableNo: 'AR20240105003',
+    orderId: demoOrders[2].id,
+    orderNo: demoOrders[2].orderNo,
+    customerName: demoOrders[2].customerName,
+    amount: 500000,
+    receivedAmount: 250000,
+    remainingAmount: 250000,
+    dueDate: formatDate(getDateBefore(2)),
+    status: '逾期账款' as const,
+    createdAt: formatDateTime(getDateBefore(40)),
+  },
+  {
+    id: generateId(),
+    receivableNo: 'AR20240101004',
+    orderId: demoOrders[4]?.id || demoOrders[0].id,
+    orderNo: demoOrders[4]?.orderNo || 'ORD20240101004',
+    customerName: demoOrders[4]?.customerName || demoCustomers[4].customerName,
+    amount: 600000,
+    receivedAmount: 600000,
+    remainingAmount: 0,
+    dueDate: formatDate(getDateBefore(15)),
+    status: '已收款' as const,
+    createdAt: formatDateTime(getDateBefore(50)),
+  },
+  {
+    id: generateId(),
+    receivableNo: 'AR20240102005',
+    orderId: demoOrders[5]?.id || demoOrders[1].id,
+    orderNo: demoOrders[5]?.orderNo || 'ORD20240102005',
+    customerName: demoOrders[5]?.customerName || demoCustomers[0].customerName,
+    amount: 320000,
+    receivedAmount: 160000,
+    remainingAmount: 160000,
+    dueDate: formatDate(getDateAfter(30)),
+    status: '部分收款' as const,
+    createdAt: formatDateTime(getDateBefore(35)),
+  },
 ];
 
-// 财务应付数据
+// 财务应付数据 - 扩展到6条，覆盖全部付款状态
 const demoPayables = [
   {
     id: generateId(),
@@ -1093,6 +1347,66 @@ const demoPayables = [
     dueDate: formatDate(getDateAfter(10)),
     status: '部分付款' as const,
     createdAt: formatDateTime(getDateBefore(20)),
+  },
+  {
+    id: generateId(),
+    payableNo: 'AP20240116001',
+    supplierId: demoSuppliers[1].id,
+    supplierName: demoSuppliers[1].supplierName,
+    amount: 45600,
+    paidAmount: 0,
+    remainingAmount: 45600,
+    dueDate: formatDate(getDateAfter(20)),
+    status: '未付款' as const,
+    createdAt: formatDateTime(getDateBefore(15)),
+  },
+  {
+    id: generateId(),
+    payableNo: 'AP20240117001',
+    supplierId: demoSuppliers[2].id,
+    supplierName: demoSuppliers[2].supplierName,
+    amount: 125000,
+    paidAmount: 125000,
+    remainingAmount: 0,
+    dueDate: formatDate(getDateBefore(10)),
+    status: '已付款' as const,
+    createdAt: formatDateTime(getDateBefore(25)),
+  },
+  {
+    id: generateId(),
+    payableNo: 'AP20240118001',
+    supplierId: demoSuppliers[3].id,
+    supplierName: demoSuppliers[3].supplierName,
+    amount: 200000,
+    paidAmount: 0,
+    remainingAmount: 200000,
+    dueDate: formatDate(getDateBefore(5)),
+    status: '逾期未付' as const,
+    createdAt: formatDateTime(getDateBefore(40)),
+  },
+  {
+    id: generateId(),
+    payableNo: 'AP20240119001',
+    supplierId: demoSuppliers[0].id,
+    supplierName: demoSuppliers[0].supplierName,
+    amount: 310000,
+    paidAmount: 310000,
+    remainingAmount: 0,
+    dueDate: formatDate(getDateBefore(20)),
+    status: '已付款' as const,
+    createdAt: formatDateTime(getDateBefore(45)),
+  },
+  {
+    id: generateId(),
+    payableNo: 'AP20240120001',
+    supplierId: demoSuppliers[1].id,
+    supplierName: demoSuppliers[1].supplierName,
+    amount: 78900,
+    paidAmount: 39450,
+    remainingAmount: 39450,
+    dueDate: formatDate(getDateAfter(5)),
+    status: '部分付款' as const,
+    createdAt: formatDateTime(getDateBefore(30)),
   },
 ];
 
@@ -1193,6 +1507,10 @@ export function initializeDemoData(): { success: boolean; message: string; count
     // 物料数据
     localStorage.setItem(DB_KEYS.MATERIALS, JSON.stringify(demoMaterials));
     counts.materials = demoMaterials.length;
+
+    // BOM数据
+    localStorage.setItem(DB_KEYS.BOMS, JSON.stringify(demoBOMs));
+    counts.boms = demoBOMs.length;
 
     // 库存数据
     localStorage.setItem(DB_KEYS.STOCK_ITEMS, JSON.stringify(demoStockItems));
