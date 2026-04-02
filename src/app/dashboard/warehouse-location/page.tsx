@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Plus, Eye, RotateCcw, QrCode } from 'lucide-react';
+import { MapPin, Plus, RotateCcw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getWarehouseLocations, type WarehouseLocation } from '@/types/production-advanced-2';
 
@@ -20,11 +20,9 @@ const statusColors = {
 
 export default function WarehouseLocationPage() {
   const router = useRouter();
-  const [locations, setLocations] = useState<WarehouseLocation[]>([]);
+  const [locations] = useState<WarehouseLocation[]>(getWarehouseLocations());
   const [searchCode, setSearchCode] = useState('');
   const [searchStatus, setSearchStatus] = useState('全部');
-
-  useEffect(() => { setLocations(getWarehouseLocations()); }, []);
 
   const handleReset = () => { setSearchCode(''); setSearchStatus('全部'); };
 

@@ -14,19 +14,20 @@ export default function UserDetailPage() {
   const params = useParams();
   const userId = params.id as string;
 
-  const [user, setUser] = useState<UserType | null>(null);
-
-  useEffect(() => {
+  const [user, setUser] = useState<UserType | null>(() => {
     if (userId) {
       const foundUser = getUserById(userId);
-      if (foundUser) {
-        setUser(foundUser);
-      } else {
-        alert('用户不存在');
-        router.push('/dashboard/users');
-      }
+      return foundUser || null;
     }
-  }, [userId, router]);
+    return null;
+  });
+
+  useEffect(() => {
+    if (!user && userId) {
+      alert('用户不存在');
+      router.push('/dashboard/users');
+    }
+  }, [user, userId, router]);
 
   if (!user) {
     return (

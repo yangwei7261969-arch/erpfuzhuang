@@ -1,23 +1,20 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Trash2, Plus, Eye, RotateCcw, DollarSign } from 'lucide-react';
+import { Trash2, Plus, RotateCcw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getWasteSales, type WasteSale } from '@/types/production-advanced-2';
 
 export default function WasteSalePage() {
   const router = useRouter();
-  const [sales, setSales] = useState<WasteSale[]>([]);
+  const [sales] = useState<WasteSale[]>(getWasteSales());
   const [searchNo, setSearchNo] = useState('');
-
-  useEffect(() => { setSales(getWasteSales()); }, []);
 
   const handleReset = () => { setSearchNo(''); };
 

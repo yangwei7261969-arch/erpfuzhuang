@@ -23,7 +23,8 @@ import { useRouter } from 'next/navigation';
 import { 
   getUsers, 
   deleteUser, 
-  type User, 
+  saveUsers,
+  type User,
   type UserRole,
   ROLE_PERMISSIONS 
 } from '@/types/user';
@@ -65,7 +66,6 @@ export default function UsersPage() {
       user.status = user.status === '启用' ? '禁用' : '启用';
       user.updatedAt = new Date().toISOString();
       const updatedUsers = getUsers().map(u => u.id === id ? user : u);
-      const { saveUsers } = require('@/types/user');
       saveUsers(updatedUsers);
       loadUsers();
     }

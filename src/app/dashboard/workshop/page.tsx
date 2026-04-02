@@ -29,7 +29,6 @@ import {
   Users,
   TrendingUp,
   Eye,
-  Plus,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getCurrentUser, type CurrentUser } from '@/types/user';
@@ -72,18 +71,18 @@ export default function WorkshopPage() {
   
   const [alertMessage, setAlertMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
+  const loadData = () => {
+    setReports(getWorkReports());
+    setBundles(getBundles());
+    setProcesses(getProcesses().filter(p => p.isActive));
+  };
+
   useEffect(() => {
     const user = getCurrentUser();
     setCurrentUser(user);
     initWorkshopData();
     loadData();
   }, []);
-
-  const loadData = () => {
-    setReports(getWorkReports());
-    setBundles(getBundles());
-    setProcesses(getProcesses().filter(p => p.isActive));
-  };
 
   const hasPermission = (permission: string) => {
     if (!currentUser) return false;

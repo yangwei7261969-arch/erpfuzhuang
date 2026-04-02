@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { PackageSearch, Plus, Eye, RotateCcw } from 'lucide-react';
+import { PackageSearch, Plus, RotateCcw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getAccessoryInventoryChecks, type AccessoryInventoryCheck } from '@/types/production-advanced-2';
 
@@ -19,10 +19,8 @@ const statusColors = {
 
 export default function AccessoryInventoryCheckPage() {
   const router = useRouter();
-  const [checks, setChecks] = useState<AccessoryInventoryCheck[]>([]);
+  const [checks] = useState<AccessoryInventoryCheck[]>(getAccessoryInventoryChecks());
   const [searchNo, setSearchNo] = useState('');
-
-  useEffect(() => { setChecks(getAccessoryInventoryChecks()); }, []);
 
   const handleReset = () => { setSearchNo(''); };
 

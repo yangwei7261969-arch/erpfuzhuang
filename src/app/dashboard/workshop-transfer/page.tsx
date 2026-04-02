@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRightLeft, Plus, Eye, RotateCcw } from 'lucide-react';
+import { ArrowRightLeft, Plus, RotateCcw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getWorkshopTransfers, type WorkshopTransfer } from '@/types/production-advanced-2';
 
@@ -25,13 +25,11 @@ const transferTypeColors = {
 
 export default function WorkshopTransferPage() {
   const router = useRouter();
-  const [transfers, setTransfers] = useState<WorkshopTransfer[]>([]);
+  const [transfers] = useState<WorkshopTransfer[]>(getWorkshopTransfers());
   const [searchNo, setSearchNo] = useState('');
   const [searchZaHao, setSearchZaHao] = useState('');
   const [searchType, setSearchType] = useState('全部');
   const [searchStatus, setSearchStatus] = useState('全部');
-
-  useEffect(() => { setTransfers(getWorkshopTransfers()); }, []);
 
   const handleReset = () => {
     setSearchNo('');
