@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   Tag,
   Search,
@@ -27,8 +26,6 @@ import {
 } from 'lucide-react';
 import {
   type ZaHaoRecord,
-  type CuttingTask,
-  type CuttingBed,
   getCuttingTasks,
   getZaHaoRecords,
   initCuttingData,
@@ -97,10 +94,6 @@ export default function ZaHaoPage() {
   const [expandedBeds, setExpandedBeds] = useState<Set<string>>(new Set());
   const [expandedSizes, setExpandedSizes] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
   const loadData = () => {
     setLoading(true);
     initCuttingData();
@@ -137,6 +130,10 @@ export default function ZaHaoPage() {
     
     setLoading(false);
   };
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   // 筛选后的列表
   const filteredList = zaHaoList.filter(z => {

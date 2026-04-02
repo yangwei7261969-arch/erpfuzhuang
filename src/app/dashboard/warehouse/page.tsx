@@ -10,14 +10,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Warehouse, Plus, Search, RotateCcw, Package, AlertTriangle, MapPin, Building2 } from 'lucide-react';
+import { Warehouse, Plus, Search, Package, MapPin, Building2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
   type WarehouseInfo,
   type WarehouseType,
   type WarehouseArea,
-  type BinLocation,
-  type InventoryItem,
   getWarehouses,
   initMiscData,
 } from '@/types/misc';
@@ -40,11 +38,6 @@ export default function WarehousePage() {
   const [searchName, setSearchName] = useState('');
   const [searchType, setSearchType] = useState('全部');
   
-  useEffect(() => {
-    initMiscData();
-    loadData();
-  }, []);
-  
   const loadData = () => {
     const allWarehouses = getWarehouses();
     setWarehouses(allWarehouses);
@@ -53,16 +46,16 @@ export default function WarehousePage() {
     }
   };
   
+  useEffect(() => {
+    initMiscData();
+    loadData();
+  }, []);
+  
   const filteredWarehouses = warehouses.filter(w => {
     if (searchName && !w.name.includes(searchName)) return false;
     if (searchType !== '全部' && w.warehouseType !== searchType) return false;
     return true;
   });
-  
-  const handleReset = () => {
-    setSearchName('');
-    setSearchType('全部');
-  };
   
   const stats = {
     total: warehouses.length,

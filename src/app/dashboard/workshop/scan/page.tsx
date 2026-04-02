@@ -18,7 +18,6 @@ import {
   Tag,
   FileText,
   DollarSign,
-  AlertTriangle,
 } from 'lucide-react';
 import {
   type Bundle,
@@ -134,9 +133,6 @@ export default function WorkshopScanPage() {
     if (!bundle || !selectedProcess) return false;
     
     const processIndex = processes.findIndex(p => p.processName === selectedProcess);
-    const completedProcessIndex = processes.findIndex(p => 
-      bundle.completedProcesses.includes(p.processName)
-    );
     
     // 必须按工序顺序报工
     if (processIndex > 0) {
