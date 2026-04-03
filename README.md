@@ -189,24 +189,22 @@ src/
                               财务核算 → 成本分析
 ```
 
-## 演示数据
+## 数据初始化与持久化
 
-系统内置完整演示数据，首次访问时自动初始化：
+本项目已取消默认“演示数据”填充，首次启动时将从服务端数据库文件（`data/erp-data.json`）恢复，如无文件则初始化为空数据结构。数据变更会自动同步到本地 `localStorage`，并定时/事件触发同步到服务端文件。
 
-- **客户数据**: 优衣库、ZARA、H&M
-- **供应商数据**: 面料、辅料、外协供应商
-- **订单数据**: 完整订单含工艺要求、包装要求
-- **BOM数据**: 面料、辅料、印花、包装清单
-- **生产数据**: 裁床任务、扎号记录、报工记录
-- **库存数据**: 面料、辅料库存
+- 本地存储键前缀：`erp_...`
+- 服务端持久化路径：`data/erp-data.json`
+- API 路由：`/api/data`（GET/POST/DELETE）
 
-重置演示数据：
-```javascript
-// 在浏览器控制台执行
-localStorage.removeItem('erp_demo_initialized')
-// 刷新页面
+如果想清空数据（重建空库）：
+```bash
+# 清除 localStorage（前端）
+localStorage.clear();
+# 启动后 /api/data 也会使用空数组初始化并同步到文件
 ```
 
+如需导入现有数据库文件，可替换 `data/erp-data.json` 内容，然后刷新页面。
 ## 开发规范
 
 ### 组件开发
@@ -228,6 +226,17 @@ localStorage.removeItem('erp_demo_initialized')
 
 - 用户名: `admin`
 - 密码: `admin123`
+
+## 本次修复说明
+
+- 修复了 API 数据持久化路径异常：
+  - 旧：`/workspace/projects/data/erp-data.json`（路径不存在）
+  - 新：`process.cwd()/data/erp-data.json`（项目根目录）
+- 修复后现象：`POST /api/data` 返回 200，财务模块按钮不再“死机”，数据正常存取
+- 推荐验证：
+  1. 运行 `pnpm dev` 或 `coze dev`
+  2. 打开页面并执行预支/提现/报销操作
+  3. 观察 `data/erp-data.json` 是否变化，网络请求是否为 200（`/api/data`）
 
 ## 参考文档
 

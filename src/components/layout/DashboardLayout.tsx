@@ -58,6 +58,7 @@ import {
   PackageX,
   Clock,
   Globe,
+  CreditCard,
 } from 'lucide-react';
 import { getCurrentUser, clearCurrentUser, type CurrentUser } from '@/types/user';
 import { useTheme } from '@/components/providers/ThemeProvider';
@@ -169,7 +170,8 @@ const menuGroups: MenuGroup[] = [
       { icon: DollarSign, labelKey: 'menu.finance', path: '/dashboard/finance', permissions: ['all', 'finance:view'] },
       { icon: Calculator, labelKey: 'menu.cost', path: '/dashboard/cost', permissions: ['all', 'cost:view'] },
       { icon: Calculator, labelKey: 'menu.orderBudget', path: '/dashboard/order-budget', permissions: ['all', 'budget:view'] },
-      { icon: Wallet, labelKey: 'menu.salary', path: '/dashboard/salary', permissions: ['all', 'salary:view'] },
+      { icon: Wallet, labelKey: 'menu.salary', path: '/dashboard/finance/salary', permissions: ['all', 'salary:view'] },
+      { icon: CreditCard, labelKey: 'menu.wallet', path: '/dashboard/finance/wallet', permissions: ['all', 'wallet:view'] },
       { icon: TrendingUp, labelKey: 'menu.employeePerformance', path: '/dashboard/employee-performance', permissions: ['all', 'performance:view'] },
       { icon: Truck, labelKey: 'menu.logisticsFee', path: '/dashboard/logistics-fee', permissions: ['all', 'logistics:view'] },
     ]

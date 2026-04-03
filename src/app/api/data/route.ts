@@ -8,7 +8,9 @@ const getDataPath = () => {
   if (isProd) {
     return '/tmp/erp-data.json';
   }
-  return path.join(process.env.COZE_WORKSPACE_PATH || '/workspace/projects', 'data', 'erp-data.json');
+  // 使用项目根目录（process.cwd()）替代不存在的 /workspace/projects
+  const baseDir = process.env.COZE_WORKSPACE_PATH || process.cwd();
+  return path.join(baseDir, 'data', 'erp-data.json');
 };
 
 // 确保目录存在

@@ -78,7 +78,7 @@ export default function ScanPage() {
         videoRef.current.play();
         setScanning(true);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('摄像头错误:', err);
       setCameraError('无法访问摄像头，请使用手动输入');
       setScanning(false);

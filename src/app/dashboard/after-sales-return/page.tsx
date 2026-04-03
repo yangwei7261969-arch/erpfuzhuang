@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { RotateCcw, PackageX, Plus, Eye, Edit, Undo2, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { RotateCcw, PackageX, Plus, Undo2, AlertTriangle, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface AfterSalesReturn {
@@ -48,14 +48,10 @@ const statusColors = {
 
 export default function AfterSalesReturnPage() {
   const router = useRouter();
-  const [returns, setReturns] = useState<AfterSalesReturn[]>([]);
+  const [returns] = useState<AfterSalesReturn[]>(mockData);
   const [searchNo, setSearchNo] = useState('');
   const [searchType, setSearchType] = useState('全部');
   const [searchStatus, setSearchStatus] = useState('全部');
-  
-  useEffect(() => {
-    setReturns(mockData);
-  }, []);
   
   const handleReset = () => {
     setSearchNo('');

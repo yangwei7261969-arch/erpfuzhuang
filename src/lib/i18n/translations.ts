@@ -107,6 +107,7 @@ export const translations = {
       cost: '成本核算',
       orderBudget: '订单预算',
       salary: '计件工资',
+      wallet: '员工钱包',
       employeePerformance: '员工绩效',
       logisticsFee: '物流费用',
       // 工程变更

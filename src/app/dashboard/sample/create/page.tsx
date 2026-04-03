@@ -26,8 +26,6 @@ const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', '其他'];
 
 export default function SampleCreatePage() {
   const router = useRouter();
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [teams, setTeams] = useState<Team[]>([]);
   
   // 基本信息
   const [sampleType, setSampleType] = useState<SampleType>('确认样');
@@ -45,8 +43,6 @@ export default function SampleCreatePage() {
   const [processRequirement, setProcessRequirement] = useState('');
   
   // 打样信息
-  const [teamId, setTeamId] = useState('');
-  const [teamName, setTeamName] = useState('');
   const [designer, setDesigner] = useState('');
   
   // 用料明细
@@ -58,19 +54,16 @@ export default function SampleCreatePage() {
   const [laborCost, setLaborCost] = useState(50);
   const [remark, setRemark] = useState('');
 
-  useEffect(() => {
-    initSampleData();
-    setCustomers(getCustomers().filter(c => c.status === '启用'));
-    const teamsData = getTeams().filter(t => t.status === '启用');
-    setTeams(teamsData);
-    
-    // 默认选择打样组
-    const sampleTeam = teamsData.find(t => t.teamName.includes('打样') || t.teamType === '其他');
-    if (sampleTeam) {
-      setTeamId(sampleTeam.id);
-      setTeamName(sampleTeam.teamName);
-    }
-  }, []);
+  // 初始化数据
+  const customers = getCustomers().filter(c => c.status === '启用');
+  const teamsData = getTeams().filter(t => t.status === '启用');
+  const [teams] = useState(teamsData);
+  const [customersList] = useState(customers);
+  
+  // 默认选择打样组
+  const sampleTeam = teamsData.find(t => t.teamName.includes('打样') || t.teamType === '其他');
+  const [teamId, setTeamId] = useState(sampleTeam?.id || '');
+  const [teamName, setTeamName] = useState(sampleTeam?.teamName || '');
 
   // 计算材料成本
   const materialCost = materials.reduce((sum, m) => sum + m.amount, 0);
@@ -79,7 +72,7 @@ export default function SampleCreatePage() {
   // 选择客户
   const handleCustomerChange = (id: string) => {
     setCustomerId(id);
-    const customer = customers.find(c => c.id === id);
+    const customer = customersList.find(c => c.id === id);
     setCustomerName(customer?.customerName || '');
   };
 
@@ -212,7 +205,7 @@ export default function SampleCreatePage() {
                     <SelectValue placeholder="请选择客户" />
                   </SelectTrigger>
                   <SelectContent>
-                    {customers.map(c => (
+                    {customersList.map(c => (
                       <SelectItem key={c.id} value={c.id}>{c.customerName}</SelectItem>
                     ))}
                   </SelectContent>

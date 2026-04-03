@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,12 +20,10 @@ const statusColors = {
 
 export default function AccessoryColorSchemePage() {
   const router = useRouter();
-  const [schemes, setSchemes] = useState<AccessoryColorScheme[]>([]);
+  const [schemes] = useState<AccessoryColorScheme[]>(getColorSchemes());
   const [searchNo, setSearchNo] = useState('');
   const [searchStyle, setSearchStyle] = useState('');
   const [searchStatus, setSearchStatus] = useState('全部');
-
-  useEffect(() => { setSchemes(getColorSchemes()); }, []);
 
   const handleReset = () => {
     setSearchNo('');

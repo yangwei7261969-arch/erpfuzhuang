@@ -30,13 +30,13 @@ export default function BatchManagementPage() {
   const [searchMaterial, setSearchMaterial] = useState('');
   const [searchStatus, setSearchStatus] = useState('全部');
   
-  useEffect(() => {
-    loadData();
-  }, []);
-  
   const loadData = () => {
     setBatches(getMaterialBatches());
   };
+  
+  useEffect(() => {
+    loadData();
+  }, []);
   
   const handleReset = () => {
     setSearchNo('');
