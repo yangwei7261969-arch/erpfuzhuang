@@ -226,6 +226,9 @@ export async function validateUserAsync(
     return { user: null, error: `账户已锁定，请${mins}分钟后再试` };
   }
   
+  // 等待用户数据初始化完成
+  await initDefaultUsersAsync();
+  
   const users = getUsers();
   const user = users.find(u => u.username === cleanUsername);
   

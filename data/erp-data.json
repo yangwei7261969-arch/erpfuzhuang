@@ -585,6 +585,43 @@
       "isActive": true
     }
   ],
+  "erp_borrow_records": [
+    {
+      "id": "6g5t1adzse",
+      "borrowNo": "BR20240115001",
+      "borrowType": "借入",
+      "materialNo": "M001",
+      "materialName": "全棉针织布",
+      "unit": "公斤",
+      "borrowQuantity": 500,
+      "returnedQuantity": 300,
+      "counterparty": "华纺备用仓库",
+      "borrowDate": "2026-03-15",
+      "expectedReturnDate": "2026-04-14",
+      "status": "部分归还",
+      "remark": "生产急需借入",
+      "createdBy": "admin",
+      "createdAt": "2026-03-15 01:14:44"
+    },
+    {
+      "id": "rstdav8r6o7",
+      "borrowNo": "BR20240110001",
+      "borrowType": "借出",
+      "materialNo": "M004",
+      "materialName": "拉链",
+      "unit": "条",
+      "borrowQuantity": 200,
+      "returnedQuantity": 200,
+      "counterparty": "合作工厂A",
+      "borrowDate": "2026-03-05",
+      "expectedReturnDate": "2026-03-25",
+      "actualReturnDate": "2026-03-23",
+      "status": "已归还",
+      "remark": "",
+      "createdBy": "admin",
+      "createdAt": "2026-03-05 01:14:44"
+    }
+  ],
   "erp_alerts": [
     {
       "id": "xoej2o0razs",
@@ -629,43 +666,6 @@
       "createdAt": "2026-01-25",
       "updatedAt": "2026-01-25",
       "processedAt": "2026-04-04T03:40:14.714Z"
-    }
-  ],
-  "erp_borrow_records": [
-    {
-      "id": "6g5t1adzse",
-      "borrowNo": "BR20240115001",
-      "borrowType": "借入",
-      "materialNo": "M001",
-      "materialName": "全棉针织布",
-      "unit": "公斤",
-      "borrowQuantity": 500,
-      "returnedQuantity": 300,
-      "counterparty": "华纺备用仓库",
-      "borrowDate": "2026-03-15",
-      "expectedReturnDate": "2026-04-14",
-      "status": "部分归还",
-      "remark": "生产急需借入",
-      "createdBy": "admin",
-      "createdAt": "2026-03-15 01:14:44"
-    },
-    {
-      "id": "rstdav8r6o7",
-      "borrowNo": "BR20240110001",
-      "borrowType": "借出",
-      "materialNo": "M004",
-      "materialName": "拉链",
-      "unit": "条",
-      "borrowQuantity": 200,
-      "returnedQuantity": 200,
-      "counterparty": "合作工厂A",
-      "borrowDate": "2026-03-05",
-      "expectedReturnDate": "2026-03-25",
-      "actualReturnDate": "2026-03-23",
-      "status": "已归还",
-      "remark": "",
-      "createdBy": "admin",
-      "createdAt": "2026-03-05 01:14:44"
     }
   ],
   "erp_bundles": [],
@@ -1313,7 +1313,7 @@
       "createdAt": "2026-01-22"
     }
   ],
-  "erp_last_sync_time": "2026-04-04T10:57:51.970Z",
+  "erp_last_sync_time": "2026-04-04T11:07:30.204Z",
   "erp_lockout": {},
   "erp_salary_freezes": [
     {
@@ -1773,7 +1773,7 @@
       "createdAt": "2024-01-15 08:00:00"
     }
   ],
-  "_savedAt": "2026-04-04T10:58:02.448Z",
+  "_savedAt": "2026-04-04T11:07:48.466Z",
   "_version": "2.1.0",
   "_security": "enhanced"
 }
