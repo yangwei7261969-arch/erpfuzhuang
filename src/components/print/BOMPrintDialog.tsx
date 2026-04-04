@@ -18,10 +18,11 @@ interface BOMPrintDialogProps {
 }
 
 // 计算各尺码合计
-const calculateTotals = (matrix: ColorSizeMatrix[]) => {
+const calculateTotals = (matrix: ColorSizeMatrix[] | undefined) => {
   const totals = {
     S: 0, M: 0, L: 0, XL: 0, XXL: 0, XXXL: 0, total: 0
   };
+  if (!matrix || !Array.isArray(matrix)) return totals;
   matrix.forEach(row => {
     totals.S += row.S || 0;
     totals.M += row.M || 0;

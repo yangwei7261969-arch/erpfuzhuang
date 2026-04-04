@@ -1,85 +1,13 @@
 {
-  "erp_customers": [
-    {
-      "id": "CU001",
-      "name": "优衣库",
-      "contact": "张经理",
-      "phone": "13800000001",
-      "address": "上海市浦东新区",
-      "createdAt": "2026-04-03T02:20:30.730124"
-    },
-    {
-      "id": "CU002",
-      "name": "ZARA",
-      "contact": "李小姐",
-      "phone": "13800000002",
-      "address": "广州市天河区",
-      "createdAt": "2026-04-03T02:20:30.730124"
-    }
-  ],
-  "erp_suppliers": [
-    {
-      "id": "SP001",
-      "name": "面料供应商A",
-      "contact": "陈先生",
-      "phone": "13900000001",
-      "address": "浙江省杭州市",
-      "createdAt": "2026-04-03T02:20:30.730124"
-    },
-    {
-      "id": "SP002",
-      "name": "辅料供应商B",
-      "contact": "王女士",
-      "phone": "13900000002",
-      "address": "江苏省苏州市",
-      "createdAt": "2026-04-03T02:20:30.730124"
-    }
-  ],
-  "erp_employees": [
-    {
-      "id": "EMP001",
-      "name": "王五",
-      "role": "缝制工",
-      "team": "缝制一组",
-      "status": "在职",
-      "joinDate": "2024-01-10"
-    },
-    {
-      "id": "EMP002",
-      "name": "赵六",
-      "role": "组长",
-      "team": "缝制一组",
-      "status": "在职",
-      "joinDate": "2023-11-01"
-    },
-    {
-      "id": "EMP003",
-      "name": "李四",
-      "role": "财务",
-      "team": "财务部",
-      "status": "在职",
-      "joinDate": "2022-03-05"
-    }
-  ],
-  "erp_teams": [
-    {
-      "id": "T001",
-      "name": "缝制一组"
-    },
-    {
-      "id": "T002",
-      "name": "缝制二组"
-    },
-    {
-      "id": "T003",
-      "name": "财务部"
-    }
-  ],
+  "erp_customers": [],
+  "erp_suppliers": [],
+  "erp_employees": [],
+  "erp_teams": [],
   "erp_users": [
     {
-      "id": "1",
+      "id": "a14138fd-cbe3-49fe-aef1-72c7b643a277",
       "username": "admin",
-      "password": "admin123",
+      "password": "55655bdd31e4c0207edabde436aea843$1fc9afa5dac4fa35dac044f923ef33c6ed8d337d28f80b546f9531e263147f48",
       "realName": "系统管理员",
       "role": "管理员",
       "department": "信息部",
@@ -87,213 +15,234 @@
         "all"
       ],
       "status": "启用",
-      "createdAt": "2024-01-01"
+      "createdAt": "2026-04-04T05:48:33.183Z",
+      "passwordChangedAt": "2026-04-04T05:48:33.183Z",
+      "lastLogin": "2026/4/4 13:48:37"
     },
     {
-      "id": "2",
+      "id": "65a2c95b-1ffc-4105-86bd-f8e43ed275c4",
       "username": "user",
-      "password": "123456",
+      "password": "f76a5d716db9429cbaab260b8c585a10$bda35a0cdc8a9d75f749ac14e3e10cfacd99bf683eb43397e4c4eb9437c02ffd",
       "realName": "张三",
       "role": "业务员",
       "department": "业务部",
       "permissions": [
+        "order:create",
         "order:view",
-        "bom:view"
+        "order:edit",
+        "order:delete",
+        "bom:create",
+        "bom:view",
+        "customer:view",
+        "customer:edit",
+        "wallet:view"
       ],
       "status": "启用",
-      "createdAt": "2024-01-01"
-    }
-  ],
-  "erp_roles": [
-    {
-      "id": "R001",
-      "name": "管理员",
-      "permissions": [
-        "all"
-      ]
+      "createdAt": "2026-04-04T05:48:33.183Z",
+      "passwordChangedAt": "2026-04-04T05:48:33.183Z"
     },
     {
-      "id": "R002",
-      "name": "业务员",
+      "id": "1310070f-71b6-4bc4-8fb9-809e677966be",
+      "username": "worker",
+      "password": "22a81ff54ad51c80c79fffb0d954c78c$adedf05908aab560ac187d3cb7f9c32b719325e615444efe1d081182295ad1fa",
+      "realName": "李四",
+      "role": "车间工人",
+      "department": "缝制车间",
       "permissions": [
+        "workshop:report",
+        "cutting:view",
+        "bundle:view",
         "order:view",
-        "bom:view",
-        "customer:view"
-      ]
+        "wallet:view"
+      ],
+      "status": "启用",
+      "createdAt": "2026-04-04T05:48:33.183Z",
+      "passwordChangedAt": "2026-04-04T05:48:33.183Z"
     }
   ],
-  "erp_products": [
+  "erp_roles": [],
+  "erp_warehouses": [
     {
-      "id": "P001",
-      "name": "男士T恤",
-      "category": "服装",
-      "price": 80
+      "id": "1",
+      "code": "WH01",
+      "name": "原料仓",
+      "warehouseType": "原料仓",
+      "manager": "张仓管",
+      "location": "A栋1楼",
+      "totalArea": 500,
+      "totalCapacity": 10000,
+      "usedCapacity": 6500,
+      "areaCount": 3,
+      "binCount": 50,
+      "areas": [
+        {
+          "id": "1",
+          "code": "A",
+          "name": "面料区",
+          "binCount": 20,
+          "utilization": 75,
+          "manager": "张三",
+          "status": "正常"
+        },
+        {
+          "id": "2",
+          "code": "B",
+          "name": "辅料区",
+          "binCount": 15,
+          "utilization": 60,
+          "manager": "李四",
+          "status": "正常"
+        },
+        {
+          "id": "3",
+          "code": "C",
+          "name": "包材区",
+          "binCount": 15,
+          "utilization": 55,
+          "manager": "王五",
+          "status": "正常"
+        }
+      ],
+      "bins": [],
+      "inventory": [],
+      "isActive": true,
+      "remark": ""
     },
     {
-      "id": "P002",
-      "name": "女装连衣裙",
-      "category": "服装",
-      "price": 120
-    }
-  ],
-  "erp_orders": [
-    {
-      "id": "O001",
-      "orderNo": "ORD20260101001",
-      "customerId": "CU001",
-      "styleNo": "ST001",
-      "productName": "男士T恤",
-      "orderQuantity": 500,
-      "orderDate": "2026-01-01",
-      "deliveryDate": "2026-02-01",
-      "status": "生产中",
-      "createdAt": "2026-04-03T02:20:30.730124",
-      "updatedAt": "2026-04-03T02:20:30.730124"
+      "id": "2",
+      "code": "WH02",
+      "name": "成品仓",
+      "warehouseType": "成品仓",
+      "manager": "李仓管",
+      "location": "B栋1楼",
+      "totalArea": 800,
+      "totalCapacity": 15000,
+      "usedCapacity": 8000,
+      "areaCount": 2,
+      "binCount": 60,
+      "areas": [],
+      "bins": [],
+      "inventory": [],
+      "isActive": true,
+      "remark": ""
     },
     {
-      "id": "O002",
-      "orderNo": "ORD20260101002",
-      "customerId": "CU002",
-      "styleNo": "ST002",
-      "productName": "女装连衣裙",
-      "orderQuantity": 300,
-      "orderDate": "2026-01-05",
-      "deliveryDate": "2026-02-10",
-      "status": "已确认",
-      "createdAt": "2026-04-03T02:20:30.730124",
-      "updatedAt": "2026-04-03T02:20:30.730124"
+      "id": "3",
+      "code": "WH03",
+      "name": "客供料仓",
+      "warehouseType": "客供料仓",
+      "manager": "王仓管",
+      "location": "A栋2楼",
+      "totalArea": 200,
+      "totalCapacity": 5000,
+      "usedCapacity": 2000,
+      "areaCount": 1,
+      "binCount": 20,
+      "areas": [],
+      "bins": [],
+      "inventory": [],
+      "isActive": true,
+      "remark": ""
     }
   ],
-  "erp_boms": [
+  "erp_products": [],
+  "erp_materials": [],
+  "erp_orders": [],
+  "erp_samples": [],
+  "erp_size_specs": [
     {
-      "id": "BOM001",
-      "orderNo": "ORD20260101001",
-      "material": "面料A",
-      "quantity": 600,
-      "unit": "米",
-      "amount": 15000,
-      "createdAt": "2026-04-03T02:20:30.730124"
-    },
-    {
-      "id": "BOM002",
-      "orderNo": "ORD20260101002",
-      "material": "面料B",
-      "quantity": 400,
-      "unit": "米",
-      "amount": 12000,
-      "createdAt": "2026-04-03T02:20:30.730124"
+      "id": "1",
+      "name": "男士T恤规格表",
+      "customer": "优衣库",
+      "category": "T恤",
+      "styleNo": "ST2024001",
+      "productName": "男士休闲T恤",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "measurePoints": [
+        "胸围",
+        "肩宽",
+        "衣长",
+        "袖长"
+      ],
+      "details": [
+        {
+          "measurePoint": "胸围",
+          "unit": "cm",
+          "tolerance": "±1cm",
+          "values": {
+            "S": "96",
+            "M": "100",
+            "L": "104",
+            "XL": "108",
+            "XXL": "112"
+          }
+        },
+        {
+          "measurePoint": "肩宽",
+          "unit": "cm",
+          "tolerance": "±1cm",
+          "values": {
+            "S": "40",
+            "M": "42",
+            "L": "44",
+            "XL": "46",
+            "XXL": "48"
+          }
+        },
+        {
+          "measurePoint": "衣长",
+          "unit": "cm",
+          "tolerance": "±1cm",
+          "values": {
+            "S": "64",
+            "M": "66",
+            "L": "68",
+            "XL": "70",
+            "XXL": "72"
+          }
+        },
+        {
+          "measurePoint": "袖长",
+          "unit": "cm",
+          "tolerance": "±0.5cm",
+          "values": {
+            "S": "20",
+            "M": "21",
+            "L": "22",
+            "XL": "23",
+            "XXL": "24"
+          }
+        }
+      ],
+      "version": "V1.0",
+      "measurements": [],
+      "tolerance": "±1cm",
+      "remark": "",
+      "createdBy": "admin",
+      "createdAt": "2024-01-10 10:00:00",
+      "updatedAt": "2024-01-10 10:00:00"
     }
   ],
-  "erp_process_routes": [
-    {
-      "id": "PR001",
-      "name": "T恤工艺",
-      "steps": [
-        "裁床",
-        "缝制",
-        "整烫",
-        "包装"
-      ]
-    },
-    {
-      "id": "PR002",
-      "name": "连衣裙工艺",
-      "steps": [
-        "裁床",
-        "缝制",
-        "整烫",
-        "质检",
-        "包装"
-      ]
-    }
-  ],
-  "erp_cutting_tasks": [
-    {
-      "id": "C001",
-      "orderNo": "ORD20260101001",
-      "bundleCount": 10,
-      "status": "已完成",
-      "createdAt": "2026-04-03T02:20:30.730124"
-    }
-  ],
-  "erp_work_reports": [
-    {
-      "id": "W001",
-      "orderNo": "ORD20260101001",
-      "employeeId": "EMP001",
-      "process": "缝制",
-      "quantity": 200,
-      "reportDate": "2026-01-15",
-      "status": "已报工"
-    }
-  ],
-  "erp_tail_tasks": [
-    {
-      "id": "T001",
-      "orderNo": "ORD20260101001",
-      "process": "整烫",
-      "quantity": 200,
-      "status": "待处理",
-      "createdAt": "2026-04-03T02:20:30.730124"
-    }
-  ],
-  "erp_receivables": [
-    {
-      "id": "R001",
-      "receivableNo": "AR20260101001",
-      "orderNo": "ORD20260101001",
-      "customerName": "优衣库",
-      "totalAmount": 40000,
-      "receivedAmount": 10000,
-      "unreceivedAmount": 30000,
-      "receiptStatus": "部分收款",
-      "receipts": [],
-      "createdAt": "2026-04-03T02:20:30.730124",
-      "updatedAt": "2026-04-03T02:20:30.730124"
-    }
-  ],
-  "erp_payables": [
-    {
-      "id": "P001",
-      "payableNo": "AP20260101001",
-      "orderNo": "ORD20260101001",
-      "supplierName": "面料供应商A",
-      "category": "面料",
-      "totalAmount": 10000,
-      "paidAmount": 5000,
-      "unpaidAmount": 5000,
-      "paymentStatus": "部分付款",
-      "payments": [],
-      "createdAt": "2026-04-03T02:20:30.730124",
-      "updatedAt": "2026-04-03T02:20:30.730124"
-    }
-  ],
-  "erp_receipts": [
-    {
-      "id": "REC001",
-      "receiptNo": "REC20260101001",
-      "receivableNo": "AR20260101001",
-      "orderNo": "ORD20260101001",
-      "amount": 10000,
-      "receiptDate": "2026-01-20",
-      "receiptMethod": "银行转账",
-      "operator": "李四",
-      "remark": "首付款"
-    }
-  ],
-  "erp_payments": [
-    {
-      "id": "PAY001",
-      "paymentNo": "PAY20260101001",
-      "payableNo": "AP20260101001",
-      "orderNo": "ORD20260101001",
-      "amount": 5000,
-      "paymentDate": "2026-01-22",
-      "paymentMethod": "银行转账",
-      "operator": "李四",
-      "remark": "预付款"
-    }
-  ],
+  "erp_ecn_records": [],
+  "erp_order_progress": [],
+  "erp_boms": [],
+  "erp_processes": [],
+  "erp_process_routes": [],
+  "erp_cutting_tasks": [],
+  "erp_work_reports": [],
+  "erp_tail_tasks": [],
+  "erp_qc_records": [],
+  "erp_packing_boxes": [],
+  "erp_receivables": [],
+  "erp_payables": [],
+  "erp_receipts": [],
+  "erp_payments": [],
   "erp_salaries": [
     {
       "id": "SAL001",
@@ -324,6 +273,1042 @@
       "createdAt": "2026-04-03T02:20:30.730124"
     }
   ],
+  "erp_stock_items": [],
+  "erp_stock_in": [],
+  "erp_stock_out": [],
+  "erp_stock_transfers": [],
+  "erp_stock_checks": [],
+  "erp_settings": [],
+  "erp_logs": [],
+  "erp_login_logs": [
+    {
+      "id": "LOG177526133006721kc1wcrq",
+      "username": "admin",
+      "loginTime": "2026/4/4 08:08:50",
+      "ipAddress": "内网IP",
+      "deviceInfo": "Windows电脑",
+      "status": "成功"
+    },
+    {
+      "id": "LOG1775261234322tz2s9be2v",
+      "username": "admin",
+      "loginTime": "2026/4/4 08:07:14",
+      "ipAddress": "内网IP",
+      "deviceInfo": "Windows电脑",
+      "status": "成功"
+    }
+  ],
+  "erp_print_templates": [
+    {
+      "id": "1",
+      "templateCode": "TPL001",
+      "templateName": "扎号标签-标准",
+      "templateType": "扎号标签",
+      "paperWidth": 50,
+      "paperHeight": 30,
+      "barcodeType": "Code128",
+      "hasLogo": false,
+      "isActive": true,
+      "createdAt": "2026-01-01"
+    },
+    {
+      "id": "2",
+      "templateCode": "TPL002",
+      "templateName": "装箱单-A4",
+      "templateType": "装箱单",
+      "paperWidth": 210,
+      "paperHeight": 297,
+      "barcodeType": "QRCode",
+      "hasLogo": true,
+      "isActive": true,
+      "createdAt": "2026-01-01"
+    },
+    {
+      "id": "3",
+      "templateCode": "TPL003",
+      "templateName": "送货单-A4",
+      "templateType": "送货单",
+      "paperWidth": 210,
+      "paperHeight": 297,
+      "barcodeType": "Code128",
+      "hasLogo": true,
+      "isActive": true,
+      "createdAt": "2026-01-01"
+    },
+    {
+      "id": "4",
+      "templateCode": "TPL004",
+      "templateName": "外协加工单",
+      "templateType": "外协单",
+      "paperWidth": 210,
+      "paperHeight": 140,
+      "barcodeType": "Code128",
+      "hasLogo": false,
+      "isActive": true,
+      "createdAt": "2026-01-01"
+    },
+    {
+      "id": "5",
+      "templateCode": "TPL005",
+      "templateName": "生产流程卡",
+      "templateType": "生产流程卡",
+      "paperWidth": 100,
+      "paperHeight": 70,
+      "barcodeType": "QRCode",
+      "hasLogo": true,
+      "isActive": true,
+      "createdAt": "2026-01-01"
+    }
+  ],
+  "erp_schedules": [],
+  "erp_theme_config": {
+    "mode": "light",
+    "primaryColor": "black"
+  },
+  "erp_process_library": [
+    {
+      "id": "1",
+      "processCode": "P001",
+      "processName": "合肩",
+      "category": "缝制",
+      "standardPrice": 0.5,
+      "standardTime": 2,
+      "workType": "车工",
+      "isActive": true
+    },
+    {
+      "id": "2",
+      "processCode": "P002",
+      "processName": "锁边",
+      "category": "缝制",
+      "standardPrice": 0.3,
+      "standardTime": 1.5,
+      "workType": "车工",
+      "isActive": true
+    },
+    {
+      "id": "3",
+      "processCode": "P003",
+      "processName": "开袋",
+      "category": "缝制",
+      "standardPrice": 0.8,
+      "standardTime": 3,
+      "workType": "车工",
+      "isActive": true
+    },
+    {
+      "id": "4",
+      "processCode": "P004",
+      "processName": "上领",
+      "category": "缝制",
+      "standardPrice": 1,
+      "standardTime": 4,
+      "workType": "车工",
+      "isActive": true
+    },
+    {
+      "id": "5",
+      "processCode": "P005",
+      "processName": "装袖",
+      "category": "缝制",
+      "standardPrice": 0.9,
+      "standardTime": 3.5,
+      "workType": "车工",
+      "isActive": true
+    },
+    {
+      "id": "6",
+      "processCode": "P006",
+      "processName": "门襟缝制",
+      "category": "缝制",
+      "standardPrice": 1.2,
+      "standardTime": 4,
+      "workType": "车工",
+      "isActive": true
+    },
+    {
+      "id": "7",
+      "processCode": "P007",
+      "processName": "钉扣",
+      "category": "缝制",
+      "standardPrice": 0.2,
+      "standardTime": 1,
+      "workType": "车工",
+      "isActive": true
+    },
+    {
+      "id": "8",
+      "processCode": "P008",
+      "processName": "合缝",
+      "category": "缝制",
+      "standardPrice": 0.6,
+      "standardTime": 2.5,
+      "workType": "车工",
+      "isActive": true
+    },
+    {
+      "id": "9",
+      "processCode": "P009",
+      "processName": "整烫初整",
+      "category": "整烫",
+      "standardPrice": 0.6,
+      "standardTime": 2,
+      "workType": "烫工",
+      "isActive": true
+    },
+    {
+      "id": "10",
+      "processCode": "P010",
+      "processName": "质检初检",
+      "category": "质检",
+      "standardPrice": 0.4,
+      "standardTime": 1.5,
+      "workType": "质检员",
+      "isActive": true
+    }
+  ],
+  "erp_borrow_records": [
+    {
+      "id": "6g5t1adzse",
+      "borrowNo": "BR20240115001",
+      "borrowType": "借入",
+      "materialNo": "M001",
+      "materialName": "全棉针织布",
+      "unit": "公斤",
+      "borrowQuantity": 500,
+      "returnedQuantity": 300,
+      "counterparty": "华纺备用仓库",
+      "borrowDate": "2026-03-15",
+      "expectedReturnDate": "2026-04-14",
+      "status": "部分归还",
+      "remark": "生产急需借入",
+      "createdBy": "admin",
+      "createdAt": "2026-03-15 01:14:44"
+    },
+    {
+      "id": "rstdav8r6o7",
+      "borrowNo": "BR20240110001",
+      "borrowType": "借出",
+      "materialNo": "M004",
+      "materialName": "拉链",
+      "unit": "条",
+      "borrowQuantity": 200,
+      "returnedQuantity": 200,
+      "counterparty": "合作工厂A",
+      "borrowDate": "2026-03-05",
+      "expectedReturnDate": "2026-03-25",
+      "actualReturnDate": "2026-03-23",
+      "status": "已归还",
+      "remark": "",
+      "createdBy": "admin",
+      "createdAt": "2026-03-05 01:14:44"
+    }
+  ],
+  "erp_alerts": [
+    {
+      "id": "xoej2o0razs",
+      "alertType": "物料预警",
+      "alertLevel": "警告",
+      "title": "物料库存不足",
+      "content": "物料 M002 涤纶面料 当前库存 800，低于安全库存 1000",
+      "relatedType": "material",
+      "relatedId": "33l2iaaxjmv",
+      "relatedNo": "M002",
+      "status": "未读",
+      "createdAt": "2026-04-03 01:14:44"
+    },
+    {
+      "id": "6tfjbo0spz6",
+      "alertType": "订单交期",
+      "alertLevel": "紧急",
+      "title": "订单即将到期",
+      "content": "订单 ORD20240110002 将于 2026-04-09 到期，请抓紧生产",
+      "relatedType": "order",
+      "relatedId": "l4sekb5p2c",
+      "relatedNo": "ORD20240110002",
+      "status": "未读",
+      "createdAt": "2026-04-04 01:14:44"
+    }
+  ],
+  "erp_withdrawal_applications": [
+    {
+      "id": "WD001",
+      "withdrawalNo": "WD20260101001",
+      "employeeId": "EMP001",
+      "employeeName": "王五",
+      "amount": 800,
+      "method": "银行卡",
+      "accountInfo": {
+        "accountName": "王五",
+        "accountNumber": "6222020200000001",
+        "bankName": "工商银行"
+      },
+      "status": "已到账",
+      "transferReceiptImages": [],
+      "createdAt": "2026-01-25",
+      "updatedAt": "2026-01-25",
+      "processedAt": "2026-04-04T03:40:14.714Z"
+    }
+  ],
+  "erp_bundles": [],
+  "erp_rework_records": [],
+  "erp_system_logs": [
+    {
+      "id": "1",
+      "logNo": "LOG001",
+      "module": "订单管理",
+      "action": "新增",
+      "description": "新增订单 ORD20260331001",
+      "operator": "张三",
+      "ip": "192.168.1.100",
+      "operateTime": "2026-03-15 09:30:00"
+    },
+    {
+      "id": "2",
+      "logNo": "LOG002",
+      "module": "订单管理",
+      "action": "审核",
+      "description": "审核订单 ORD20260331001",
+      "operator": "审核员",
+      "ip": "192.168.1.101",
+      "operateTime": "2026-03-15 14:20:00"
+    },
+    {
+      "id": "3",
+      "logNo": "LOG003",
+      "module": "BOM管理",
+      "action": "新增",
+      "description": "新增BOM单 BOM001",
+      "operator": "李四",
+      "ip": "192.168.1.102",
+      "operateTime": "2026-03-16 10:15:00"
+    },
+    {
+      "id": "4",
+      "logNo": "LOG004",
+      "module": "系统设置",
+      "action": "登录",
+      "description": "用户登录系统",
+      "operator": "admin",
+      "ip": "192.168.1.1",
+      "operateTime": "2026-03-17 08:00:00"
+    },
+    {
+      "id": "5",
+      "logNo": "LOG005",
+      "module": "裁床管理",
+      "action": "新增",
+      "description": "新增裁床单 CD001",
+      "operator": "王五",
+      "ip": "192.168.1.103",
+      "operateTime": "2026-03-17 09:30:00"
+    }
+  ],
+  "erp_deduction_records": [],
+  "erp_wage_records": [],
+  "erp_current_user": {
+    "id": "a14138fd-cbe3-49fe-aef1-72c7b643a277",
+    "username": "admin",
+    "realName": "系统管理员",
+    "role": "管理员",
+    "permissions": [
+      "all"
+    ],
+    "loginTime": "2026-04-04T05:48:37.171Z"
+  },
+  "erp_material_substitutes": [
+    {
+      "id": "1",
+      "originalMaterial": "M001",
+      "originalName": "纯棉面料",
+      "substituteMaterial": "M002",
+      "substituteName": "涤棉混纺面料",
+      "substituteRatio": "1:1",
+      "validFrom": "2024-01-01",
+      "validTo": "2024-12-31",
+      "relatedBOM": "BOM20240110001",
+      "status": "已生效",
+      "remark": "",
+      "createdBy": "admin",
+      "createdAt": "2024-01-10 10:00:00"
+    }
+  ],
+  "erp_security_logs": [
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjww8pr12118a4dc7eee296",
+      "timestamp": "2026-04-04T05:48:33.183Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjww8pq8cb74517f8848691",
+      "timestamp": "2026-04-04T05:48:33.182Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjspanu0b94d3c97e9df1d9",
+      "timestamp": "2026-04-04T03:51:10.650Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjspanu78a873b8d0a95071",
+      "timestamp": "2026-04-04T03:51:10.650Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjseeq5bbd1d5d1ec00b3d4",
+      "timestamp": "2026-04-04T03:42:42.701Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjseeq5d5a514c7b3140fb8",
+      "timestamp": "2026-04-04T03:42:42.701Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjrymqa1ffedf494ccd7d2a",
+      "timestamp": "2026-04-04T03:30:26.578Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjrymqa30fb730fe8dd5438",
+      "timestamp": "2026-04-04T03:30:26.578Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjrpyzyad690ba922f21ab1",
+      "timestamp": "2026-04-04T03:23:42.574Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjrpyzye6f61f02b4091f5a",
+      "timestamp": "2026-04-04T03:23:42.574Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjramb7f3988158052a47c3",
+      "timestamp": "2026-04-04T03:11:46.291Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjramb721d352854a47eb48",
+      "timestamp": "2026-04-04T03:11:46.291Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjo7hw8ffbfc85b18849d00",
+      "timestamp": "2026-04-04T01:45:21.752Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjo7hw88924df8596613573",
+      "timestamp": "2026-04-04T01:45:21.752Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjn3g5debbca17123bf9749",
+      "timestamp": "2026-04-04T01:14:13.249Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjn3g5d3d134b74204afa90",
+      "timestamp": "2026-04-04T01:14:13.249Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjlghj2c9c33656907fab50",
+      "timestamp": "2026-04-04T00:28:22.334Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjlghj2e0a50543665d5923",
+      "timestamp": "2026-04-04T00:28:22.334Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjlg5697303a941234ed2f5",
+      "timestamp": "2026-04-04T00:28:06.321Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjlg569b11afbe3183a741a",
+      "timestamp": "2026-04-04T00:28:06.321Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjlcti855a927c0f4c8bc77",
+      "timestamp": "2026-04-04T00:25:31.232Z"
+    },
+    {
+      "type": "login",
+      "severity": "medium",
+      "userId": "3a210198-9844-47d0-97f4-b20712b8209c",
+      "username": "user",
+      "action": "登录失败",
+      "details": "密码错误",
+      "success": false,
+      "id": "LOG_mnjlcti8f6020c69307f1f58",
+      "timestamp": "2026-04-04T00:25:31.232Z"
+    },
+    {
+      "type": "login",
+      "severity": "high",
+      "username": "admin",
+      "action": "尝试登录已锁定账户",
+      "details": "账户已锁定，剩余时间：7分钟",
+      "success": false,
+      "id": "LOG_mnjlciclfe99b93399d79aca",
+      "timestamp": "2026-04-04T00:25:16.773Z"
+    },
+    {
+      "type": "login",
+      "severity": "high",
+      "username": "admin",
+      "action": "尝试登录已锁定账户",
+      "details": "账户已锁定，剩余时间：9分钟",
+      "success": false,
+      "id": "LOG_mnjlahop6fb1cdeda5951ff0",
+      "timestamp": "2026-04-04T00:23:42.601Z"
+    },
+    {
+      "type": "login",
+      "severity": "high",
+      "username": "admin",
+      "action": "尝试登录已锁定账户",
+      "details": "账户已锁定，剩余时间：9分钟",
+      "success": false,
+      "id": "LOG_mnjl9um3c5a2a8245ba9d223",
+      "timestamp": "2026-04-04T00:23:12.700Z"
+    },
+    {
+      "type": "login",
+      "severity": "high",
+      "username": "admin",
+      "action": "尝试登录已锁定账户",
+      "details": "账户已锁定，剩余时间：11分钟",
+      "success": false,
+      "id": "LOG_mnjl7ihr8ba3d44303395e7d",
+      "timestamp": "2026-04-04T00:21:23.679Z"
+    },
+    {
+      "type": "login",
+      "severity": "high",
+      "username": "admin",
+      "action": "尝试登录已锁定账户",
+      "details": "账户已锁定，剩余时间：11分钟",
+      "success": false,
+      "id": "LOG_mnjl7g4v0a005d5f6e8994f1",
+      "timestamp": "2026-04-04T00:21:20.623Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjl78h6620671767581b273",
+      "timestamp": "2026-04-04T00:21:10.698Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjl78h6df84be8bf22c7d81",
+      "timestamp": "2026-04-04T00:21:10.698Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnjl5tdx7988345b70ab9d45",
+      "timestamp": "2026-04-04T00:20:04.485Z"
+    },
+    {
+      "type": "login",
+      "severity": "medium",
+      "userId": "2",
+      "username": "user",
+      "action": "登录失败",
+      "details": "密码错误",
+      "success": false,
+      "id": "LOG_mnjl3yx25286afedad11f3f4",
+      "timestamp": "2026-04-04T00:18:38.342Z"
+    },
+    {
+      "type": "login",
+      "severity": "medium",
+      "userId": "2",
+      "username": "user",
+      "action": "登录失败",
+      "details": "密码错误",
+      "success": false,
+      "id": "LOG_mnjl34czfd6d88fffbf5fb33",
+      "timestamp": "2026-04-04T00:17:58.739Z"
+    },
+    {
+      "type": "login",
+      "severity": "high",
+      "username": "admin",
+      "action": "尝试登录已锁定账户",
+      "details": "账户已锁定，剩余时间：14分钟",
+      "success": false,
+      "id": "LOG_mnjl2vjr10c5922d369cb785",
+      "timestamp": "2026-04-04T00:17:47.319Z"
+    },
+    {
+      "type": "login",
+      "severity": "medium",
+      "userId": "1",
+      "username": "admin",
+      "action": "登录失败",
+      "details": "密码错误",
+      "success": false,
+      "id": "LOG_mnjl1j66a0bde581c88db7fa",
+      "timestamp": "2026-04-04T00:16:44.622Z"
+    },
+    {
+      "type": "login",
+      "severity": "medium",
+      "userId": "1",
+      "username": "admin",
+      "action": "登录失败",
+      "details": "密码错误",
+      "success": false,
+      "id": "LOG_mnjkz2g375cf107fd97b5093",
+      "timestamp": "2026-04-04T00:14:49.635Z"
+    },
+    {
+      "type": "login",
+      "severity": "medium",
+      "userId": "1",
+      "username": "admin",
+      "action": "登录失败",
+      "details": "密码错误",
+      "success": false,
+      "id": "LOG_mnjkxa7zb84fae4f1a41ea70",
+      "timestamp": "2026-04-04T00:13:26.399Z"
+    },
+    {
+      "type": "login",
+      "severity": "medium",
+      "userId": "1",
+      "username": "admin",
+      "action": "登录失败",
+      "details": "密码错误",
+      "success": false,
+      "id": "LOG_mnjkwtxp3d7c73879ff2d0cb",
+      "timestamp": "2026-04-04T00:13:05.293Z"
+    },
+    {
+      "type": "login",
+      "severity": "medium",
+      "userId": "1",
+      "username": "admin",
+      "action": "登录失败",
+      "details": "密码错误",
+      "success": false,
+      "id": "LOG_mnjkwrspd447cacde45db7b8",
+      "timestamp": "2026-04-04T00:13:02.521Z"
+    }
+  ],
+  "erp_login_attempts": {
+    "user": {
+      "count": 3,
+      "firstAttempt": 1775261878739,
+      "lastAttempt": 1775262331231
+    }
+  },
+  "erp_employee_wallets": [
+    {
+      "employeeId": "EMP001",
+      "employeeName": "王五",
+      "frozenSalary": 1500,
+      "availableSalary": 2200,
+      "advanceDebt": 600,
+      "reimbursementBalance": 500,
+      "totalWithdrawn": 0,
+      "totalReimbursed": 500,
+      "updatedAt": "2026-04-03T02:20:30.730124"
+    }
+  ],
+  "erp_schedule_tasks": [
+    {
+      "id": "1",
+      "taskNo": "SCH20240115001",
+      "orderId": "1",
+      "orderNo": "ORD20240110001",
+      "styleNo": "ST2024001",
+      "productName": "男士休闲T恤",
+      "customerId": "1",
+      "customerName": "优衣库",
+      "totalQuantity": 5000,
+      "plannedStartDate": "2024-01-15",
+      "plannedEndDate": "2024-01-22",
+      "teamId": "1",
+      "teamName": "缝制一组",
+      "dailyCapacity": 800,
+      "status": "进行中",
+      "progress": 45,
+      "isOverCapacity": false,
+      "isDelayed": false,
+      "processes": [
+        {
+          "processId": "1",
+          "processName": "裁剪",
+          "processOrder": 1,
+          "plannedStart": "2024-01-15",
+          "plannedEnd": "2024-01-16",
+          "status": "已完成",
+          "completedQuantity": 5000,
+          "teamId": "1",
+          "teamName": "裁床组"
+        },
+        {
+          "processId": "2",
+          "processName": "缝制",
+          "processOrder": 2,
+          "plannedStart": "2024-01-17",
+          "plannedEnd": "2024-01-21",
+          "status": "进行中",
+          "completedQuantity": 2250,
+          "teamId": "1",
+          "teamName": "缝制一组"
+        },
+        {
+          "processId": "3",
+          "processName": "整烫",
+          "processOrder": 3,
+          "plannedStart": "2024-01-22",
+          "plannedEnd": "2024-01-22",
+          "status": "未开始",
+          "completedQuantity": 0,
+          "teamId": "2",
+          "teamName": "尾部组"
+        }
+      ],
+      "remark": "",
+      "createdBy": "admin",
+      "createdAt": "2024-01-10 10:00:00",
+      "updatedAt": "2024-01-15 08:00:00"
+    },
+    {
+      "id": "2",
+      "taskNo": "SCH20240118001",
+      "orderId": "2",
+      "orderNo": "ORD20240112001",
+      "styleNo": "ST2024002",
+      "productName": "女士连衣裙",
+      "customerId": "2",
+      "customerName": "ZARA",
+      "totalQuantity": 3000,
+      "plannedStartDate": "2024-01-18",
+      "plannedEndDate": "2024-01-25",
+      "teamId": "2",
+      "teamName": "缝制二组",
+      "dailyCapacity": 600,
+      "status": "未开始",
+      "progress": 0,
+      "isOverCapacity": false,
+      "isDelayed": false,
+      "processes": [],
+      "remark": "急单，优先生产",
+      "createdBy": "admin",
+      "createdAt": "2024-01-12 14:00:00",
+      "updatedAt": "2024-01-12 14:00:00"
+    }
+  ],
+  "erp_deliveries": [],
+  "erp_wallet_transactions": [
+    {
+      "id": "WT001",
+      "employeeId": "EMP001",
+      "transactionNo": "TXN20260101001",
+      "type": "工资解冻",
+      "amount": 2200,
+      "balance": 2200,
+      "relatedId": "SAL001",
+      "remark": "1月工资解冻",
+      "createdAt": "2026-01-31"
+    },
+    {
+      "id": "WT002",
+      "employeeId": "EMP001",
+      "transactionNo": "TXN20260101002",
+      "type": "预支到账",
+      "amount": 1000,
+      "balance": 3200,
+      "relatedId": "ADV001",
+      "remark": "预支到账",
+      "createdAt": "2026-01-12"
+    },
+    {
+      "id": "WT003",
+      "employeeId": "EMP001",
+      "transactionNo": "TXN20260101003",
+      "type": "报销到账",
+      "amount": 500,
+      "balance": 3700,
+      "relatedId": "RBR001",
+      "remark": "报销到账",
+      "createdAt": "2026-01-22"
+    }
+  ],
+  "erp_last_sync_time": "2026-04-04T05:50:09.523Z",
+  "erp_lockout": {},
+  "erp_salary_freezes": [
+    {
+      "id": "SF001",
+      "employeeId": "EMP001",
+      "employeeName": "王五",
+      "isFrozen": true,
+      "frozenAmount": 1500,
+      "createdAt": "2026-04-03T02:20:30.730124",
+      "updatedAt": "2026-04-03T02:20:30.730124"
+    }
+  ],
+  "erp_session": {
+    "userId": "a14138fd-cbe3-49fe-aef1-72c7b643a277",
+    "username": "admin",
+    "createdAt": 1775281717170,
+    "expiresAt": 1775368117170,
+    "lastActivity": 1775281717170
+  },
+  "erp_outsourcing": [],
+  "erp_remembered_username": "admin",
+  "erp_styles": [
+    {
+      "id": "1",
+      "styleNo": "ST001",
+      "name": "男士圆领T恤",
+      "category": "T恤",
+      "brand": "自有品牌",
+      "season": "春夏",
+      "year": "2026",
+      "sizeGroup": "S-XL",
+      "colorGroup": "基础色",
+      "status": "启用",
+      "colors": [
+        "黑色",
+        "白色",
+        "灰色"
+      ],
+      "sizeChart": [
+        {
+          "size": "S",
+          "chest": "96",
+          "length": "66",
+          "shoulder": "42",
+          "sleeve": "20",
+          "waist": "-",
+          "hip": "-",
+          "cuff": "-",
+          "hem": "48",
+          "tolerance": "±1"
+        },
+        {
+          "size": "M",
+          "chest": "100",
+          "length": "68",
+          "shoulder": "44",
+          "sleeve": "21",
+          "waist": "-",
+          "hip": "-",
+          "cuff": "-",
+          "hem": "50",
+          "tolerance": "±1"
+        },
+        {
+          "size": "L",
+          "chest": "104",
+          "length": "70",
+          "shoulder": "46",
+          "sleeve": "22",
+          "waist": "-",
+          "hip": "-",
+          "cuff": "-",
+          "hem": "52",
+          "tolerance": "±1"
+        },
+        {
+          "size": "XL",
+          "chest": "108",
+          "length": "72",
+          "shoulder": "48",
+          "sleeve": "23",
+          "waist": "-",
+          "hip": "-",
+          "cuff": "-",
+          "hem": "54",
+          "tolerance": "±1"
+        }
+      ],
+      "createdAt": "2026/4/4 09:13:38",
+      "updatedAt": "2026/4/4 09:13:38"
+    }
+  ],
+  "erp_tail_processes": [
+    {
+      "id": "1",
+      "processCode": "T001",
+      "processName": "整烫精整",
+      "standardPrice": 0.8,
+      "processOrder": 1,
+      "isActive": true
+    },
+    {
+      "id": "2",
+      "processCode": "T002",
+      "processName": "查衫质检",
+      "standardPrice": 0.5,
+      "processOrder": 2,
+      "isActive": true
+    },
+    {
+      "id": "3",
+      "processCode": "T003",
+      "processName": "剪线",
+      "standardPrice": 0.3,
+      "processOrder": 3,
+      "isActive": true
+    },
+    {
+      "id": "4",
+      "processCode": "T004",
+      "processName": "备用扣",
+      "standardPrice": 0.2,
+      "processOrder": 4,
+      "isActive": true
+    },
+    {
+      "id": "5",
+      "processCode": "T005",
+      "processName": "挂吊牌",
+      "standardPrice": 0.3,
+      "processOrder": 5,
+      "isActive": true
+    },
+    {
+      "id": "6",
+      "processCode": "T006",
+      "processName": "折叠",
+      "standardPrice": 0.3,
+      "processOrder": 6,
+      "isActive": true
+    },
+    {
+      "id": "7",
+      "processCode": "T007",
+      "processName": "入PE袋",
+      "standardPrice": 0.2,
+      "processOrder": 7,
+      "isActive": true
+    },
+    {
+      "id": "8",
+      "processCode": "T008",
+      "processName": "复检",
+      "standardPrice": 0.4,
+      "processOrder": 8,
+      "isActive": true
+    },
+    {
+      "id": "9",
+      "processCode": "T009",
+      "processName": "装箱",
+      "standardPrice": 0.3,
+      "processOrder": 9,
+      "isActive": true
+    }
+  ],
+  "erp_scrap_records": [],
   "erp_order_costs": [
     {
       "id": "OC001",
@@ -343,15 +1328,47 @@
       "updatedAt": "2026-04-03T02:20:30.730124"
     }
   ],
-  "erp_salary_freezes": [
+  "erp_ecns": [
     {
-      "id": "SF001",
-      "employeeId": "EMP001",
-      "employeeName": "王五",
-      "isFrozen": true,
-      "frozenAmount": 1500,
-      "createdAt": "2026-04-03T02:20:30.730124",
-      "updatedAt": "2026-04-03T02:20:30.730124"
+      "id": "1",
+      "ecnNo": "ECN20240115001",
+      "changeType": "物料变更",
+      "priority": "普通",
+      "bomNo": "BOM20240110001",
+      "orderNo": "ORD20240110001",
+      "styleNo": "ST2024001",
+      "changeContent": "面料由纯棉改为涤棉混纺",
+      "beforeContent": "纯棉面料 100%",
+      "afterContent": "涤棉混纺 65/35",
+      "changeReason": "成本优化",
+      "affectedOrders": 2,
+      "affectBOM": true,
+      "affectCutting": false,
+      "affectWorkshop": false,
+      "affectPurchase": true,
+      "status": "已完成",
+      "applicant": "张工",
+      "reviewer": "李经理",
+      "reviewedAt": "2024-01-15 10:00:00",
+      "reviewComment": "同意变更",
+      "executor": "王工",
+      "completedAt": "2024-01-15 14:00:00",
+      "executeComment": "已完成物料替换",
+      "attachments": [],
+      "remark": "",
+      "createdAt": "2024-01-15 09:00:00",
+      "updatedAt": "2024-01-15 14:00:00"
+    }
+  ],
+  "erp_db_version": "2.0.0",
+  "erp_salary_deductions": [
+    {
+      "id": "ded001",
+      "salaryId": "SAL001",
+      "advanceDebtId": "AD001",
+      "amount": 400,
+      "deductionDate": "2026-01-31",
+      "createdAt": "2026-04-03T02:20:30.730124"
     }
   ],
   "erp_advance_applications": [
@@ -371,50 +1388,6 @@
       "paidAt": "2026-01-12",
       "createdAt": "2026-01-09",
       "updatedAt": "2026-01-12"
-    }
-  ],
-  "erp_advance_debts": [
-    {
-      "id": "AD001",
-      "advanceId": "ADV001",
-      "advanceNo": "ADV20260101001",
-      "employeeId": "EMP001",
-      "employeeName": "王五",
-      "totalAmount": 1000,
-      "paidAmount": 400,
-      "remainingAmount": 600,
-      "status": "未结清",
-      "createdAt": "2026-01-12",
-      "updatedAt": "2026-01-20"
-    }
-  ],
-  "erp_salary_deductions": [
-    {
-      "id": "ded001",
-      "salaryId": "SAL001",
-      "advanceDebtId": "AD001",
-      "amount": 400,
-      "deductionDate": "2026-01-31",
-      "createdAt": "2026-04-03T02:20:30.730124"
-    }
-  ],
-  "erp_withdrawal_applications": [
-    {
-      "id": "WD001",
-      "withdrawalNo": "WD20260101001",
-      "employeeId": "EMP001",
-      "employeeName": "王五",
-      "amount": 800,
-      "method": "银行卡",
-      "accountInfo": {
-        "accountName": "王五",
-        "accountNumber": "6222020200000001",
-        "bankName": "工商银行"
-      },
-      "status": "待审核",
-      "transferReceiptImages": [],
-      "createdAt": "2026-01-25",
-      "updatedAt": "2026-01-25"
     }
   ],
   "erp_reimbursement_applications": [
@@ -456,6 +1429,116 @@
       }
     }
   ],
+  "erp_standard_processes": [
+    {
+      "id": "1",
+      "processCode": "P001",
+      "processName": "合肩",
+      "category": "缝制",
+      "standardPrice": 0.5,
+      "processOrder": 1,
+      "isActive": true
+    },
+    {
+      "id": "2",
+      "processCode": "P002",
+      "processName": "锁边",
+      "category": "缝制",
+      "standardPrice": 0.3,
+      "processOrder": 2,
+      "isActive": true
+    },
+    {
+      "id": "3",
+      "processCode": "P003",
+      "processName": "开袋",
+      "category": "缝制",
+      "standardPrice": 0.8,
+      "processOrder": 3,
+      "isActive": true
+    },
+    {
+      "id": "4",
+      "processCode": "P004",
+      "processName": "上领",
+      "category": "缝制",
+      "standardPrice": 1,
+      "processOrder": 4,
+      "isActive": true
+    },
+    {
+      "id": "5",
+      "processCode": "P005",
+      "processName": "装袖",
+      "category": "缝制",
+      "standardPrice": 0.9,
+      "processOrder": 5,
+      "isActive": true
+    },
+    {
+      "id": "6",
+      "processCode": "P006",
+      "processName": "门襟缝制",
+      "category": "缝制",
+      "standardPrice": 1.2,
+      "processOrder": 6,
+      "isActive": true
+    },
+    {
+      "id": "7",
+      "processCode": "P007",
+      "processName": "钉扣",
+      "category": "缝制",
+      "standardPrice": 0.2,
+      "processOrder": 7,
+      "isActive": true
+    },
+    {
+      "id": "8",
+      "processCode": "P008",
+      "processName": "合缝",
+      "category": "缝制",
+      "standardPrice": 0.6,
+      "processOrder": 8,
+      "isActive": true
+    },
+    {
+      "id": "9",
+      "processCode": "P009",
+      "processName": "整烫初整",
+      "category": "缝制",
+      "standardPrice": 0.6,
+      "processOrder": 9,
+      "isActive": true
+    },
+    {
+      "id": "10",
+      "processCode": "P010",
+      "processName": "质检初检",
+      "category": "质检",
+      "standardPrice": 0.4,
+      "processOrder": 10,
+      "isActive": true
+    }
+  ],
+  "erp_advance_debts": [
+    {
+      "id": "AD001",
+      "advanceId": "ADV001",
+      "advanceNo": "ADV20260101001",
+      "employeeId": "EMP001",
+      "employeeName": "王五",
+      "totalAmount": 1000,
+      "paidAmount": 400,
+      "remainingAmount": 600,
+      "status": "未结清",
+      "createdAt": "2026-01-12",
+      "updatedAt": "2026-01-20"
+    }
+  ],
+  "erp_monthly_salaries": [],
+  "erp_db_initialized": true,
+  "erp_audit_logs": [],
   "erp_reimbursement_records": [
     {
       "id": "RBR001",
@@ -469,63 +1552,56 @@
       "createdAt": "2026-01-22"
     }
   ],
-  "erp_employee_wallets": [
+  "erp_customer_materials": [
     {
-      "employeeId": "EMP001",
-      "employeeName": "王五",
-      "frozenSalary": 1500,
-      "availableSalary": 2200,
-      "advanceDebt": 600,
-      "reimbursementBalance": 500,
-      "totalWithdrawn": 0,
-      "totalReimbursed": 500,
-      "updatedAt": "2026-04-03T02:20:30.730124"
+      "id": "1",
+      "materialNo": "CM001",
+      "materialName": "客供拉链",
+      "materialType": "客供料",
+      "customerId": "C001",
+      "customerName": "优衣库",
+      "unit": "条",
+      "orderNo": "ORD20240110001",
+      "totalQuantity": 5000,
+      "receivedQuantity": 5000,
+      "issuedQuantity": 2000,
+      "usedQuantity": 2000,
+      "remainingQuantity": 3000,
+      "warehouseId": "3",
+      "warehouseName": "客供料仓",
+      "status": "已发料",
+      "isCostExcluded": true,
+      "remark": "",
+      "createdAt": "2024-01-12 10:00:00"
     }
   ],
-  "erp_wallet_transactions": [
+  "erp_alert_messages": [
     {
-      "id": "WT001",
-      "employeeId": "EMP001",
-      "transactionNo": "TXN20260101001",
-      "type": "工资解冻",
-      "amount": 2200,
-      "balance": 2200,
-      "relatedId": "SAL001",
-      "remark": "1月工资解冻",
-      "createdAt": "2026-01-31"
+      "id": "1",
+      "alertType": "物料预警",
+      "alertLevel": "紧急",
+      "title": "纯棉面料库存不足",
+      "content": "订单ORD20240110001所需纯棉面料库存不足，缺料3500米，将影响生产进度",
+      "relatedType": "MRP",
+      "relatedId": "1",
+      "relatedNo": "MRP20240110001",
+      "status": "未读",
+      "createdAt": "2024-01-15 08:00:00"
     },
     {
-      "id": "WT002",
-      "employeeId": "EMP001",
-      "transactionNo": "TXN20260101002",
-      "type": "预支到账",
-      "amount": 1000,
-      "balance": 3200,
-      "relatedId": "ADV001",
-      "remark": "预支到账",
-      "createdAt": "2026-01-12"
-    },
-    {
-      "id": "WT003",
-      "employeeId": "EMP001",
-      "transactionNo": "TXN20260101003",
-      "type": "报销到账",
-      "amount": 500,
-      "balance": 3700,
-      "relatedId": "RBR001",
-      "remark": "报销到账",
-      "createdAt": "2026-01-22"
+      "id": "2",
+      "alertType": "订单交期",
+      "alertLevel": "警告",
+      "title": "订单即将到期",
+      "content": "订单ORD20240110001将于5天后到期，请关注生产进度",
+      "relatedType": "Order",
+      "relatedId": "1",
+      "relatedNo": "ORD20240110001",
+      "status": "未读",
+      "createdAt": "2024-01-15 08:00:00"
     }
   ],
-  "erp_settings": [],
-  "erp_logs": [],
-  "erp_audit_logs": [],
-  "erp_theme_config": {
-    "mode": "light",
-    "primaryColor": "black"
-  },
-  "erp_db_version": "2.0.0",
-  "erp_db_initialized": true,
-  "erp_last_sync_time": "2026-04-03T02:20:30.730124",
-  "_version": "2.0.0"
+  "_savedAt": "2026-04-04T05:50:12.772Z",
+  "_version": "2.1.0",
+  "_security": "enhanced"
 }

@@ -225,7 +225,7 @@ localStorage.clear();
 ## 登录信息
 
 - 用户名: `admin`
-- 密码: `admin123`
+- 密码: `Admin@2024!`
 
 ## 本次修复说明
 

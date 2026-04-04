@@ -51,16 +51,16 @@ export default function AlertPage() {
   const [searchType, setSearchType] = useState('全部');
   const [searchLevel, setSearchLevel] = useState('全部');
   const [searchStatus, setSearchStatus] = useState('全部');
-  
-  useEffect(() => {
-    initMiscData();
-    loadData();
-  }, []);
-  
+
   const loadData = () => {
     setMessages(getAlertMessages());
     setUnreadCount(getUnreadAlerts().length);
   };
+
+  useEffect(() => {
+    initMiscData();
+    loadData();
+  }, []);
   
   const filteredMessages = messages.filter(m => {
     if (searchType !== '全部' && m.alertType !== searchType) return false;

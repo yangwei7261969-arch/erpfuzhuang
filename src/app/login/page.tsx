@@ -7,56 +7,17 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, EyeOff, User, Lock, Zap, Moon, Sun } from 'lucide-react';
+import { Eye, EyeOff, User, Lock, Zap, Moon, Sun, AlertCircle } from 'lucide-react';
 import { 
   initDefaultUsers, 
-  validateUser, 
+  validateUserAsync, 
   saveCurrentUser, 
   saveRememberedUsername, 
   getRememberedUsername,
-  clearRememberedUsername,
-  updateLastLogin 
+  clearRememberedUsername
 } from '@/types/user';
 import { useTheme } from '@/components/providers/ThemeProvider';
-
-// 登录日志类型
-interface LoginLog {
-  id: string;
-  username: string;
-  loginTime: string;
-  ipAddress: string;
-  deviceInfo: string;
-  status: '成功' | '失败';
-  failReason?: string;
-}
-
-// 保存登录日志
-const saveLoginLog = (log: LoginLog) => {
-  const logs: LoginLog[] = JSON.parse(localStorage.getItem('erp_login_logs') || '[]');
-  logs.unshift(log);
-  // 保留最近1000条日志
-  if (logs.length > 1000) {
-    logs.splice(1000);
-  }
-  localStorage.setItem('erp_login_logs', JSON.stringify(logs));
-};
-
-// 生成日志ID
-const generateLogId = () => {
-  return `LOG${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
-};
-
-// 获取设备信息
-const getDeviceInfo = () => {
-  const ua = navigator.userAgent;
-  let device = '未知设备';
-  if (ua.includes('Windows')) device = 'Windows电脑';
-  else if (ua.includes('Mac')) device = 'Mac电脑';
-  else if (ua.includes('Linux')) device = 'Linux电脑';
-  else if (ua.includes('Android')) device = 'Android手机';
-  else if (ua.includes('iPhone') || ua.includes('iPad')) device = 'iOS设备';
-  return device;
-};
+import { escapeHtml } from '@/lib/security';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -71,6 +32,7 @@ export default function LoginPage() {
   // 初始化用户数据和检查记住密码
   useEffect(() => {
     initDefaultUsers();
+    
     const rememberedUsername = getRememberedUsername();
     if (rememberedUsername) {
       setUsername(rememberedUsername);
@@ -93,73 +55,37 @@ export default function LoginPage() {
       return;
     }
 
+    // 输入清理
+    const cleanUsername = escapeHtml(username.trim());
+    
     setIsLoading(true);
 
-    // 模拟网络延迟
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // 模拟网络延迟（防止时序攻击）
+    await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 500));
 
-    // 验证用户
-    const user = validateUser(username.trim(), password);
+    // 使用安全验证函数
+    const result = await validateUserAsync(cleanUsername, password);
 
-    if (!user) {
-      // 记录登录失败日志
-      saveLoginLog({
-        id: generateLogId(),
-        username: username.trim(),
-        loginTime: new Date().toLocaleString('zh-CN'),
-        ipAddress: '内网IP',
-        deviceInfo: getDeviceInfo(),
-        status: '失败',
-        failReason: '账号或密码不正确',
-      });
-      setError('账号或密码不正确');
+    if (!result.user) {
+      setError(result.error || '登录失败');
       setIsLoading(false);
       return;
     }
 
-    if (user.status === '禁用') {
-      // 记录登录失败日志
-      saveLoginLog({
-        id: generateLogId(),
-        username: username.trim(),
-        loginTime: new Date().toLocaleString('zh-CN'),
-        ipAddress: '内网IP',
-        deviceInfo: getDeviceInfo(),
-        status: '失败',
-        failReason: '账号已禁用',
-      });
-      setError('账号已禁用');
-      setIsLoading(false);
-      return;
-    }
-
-    // 处理记住密码
+    // 处理记住密码（只保存用户名，不保存密码）
     if (rememberPassword) {
-      saveRememberedUsername(username.trim());
+      saveRememberedUsername(cleanUsername);
     } else {
       clearRememberedUsername();
     }
 
-    // 保存当前用户信息
+    // 保存当前用户信息（不包含密码）
     saveCurrentUser({
-      id: user.username,
-      username: user.username,
-      realName: user.realName,
-      role: user.role,
-      permissions: user.permissions,
-    });
-
-    // 更新最后登录时间
-    updateLastLogin(user.username);
-
-    // 记录登录成功日志
-    saveLoginLog({
-      id: generateLogId(),
-      username: username.trim(),
-      loginTime: new Date().toLocaleString('zh-CN'),
-      ipAddress: '内网IP',
-      deviceInfo: getDeviceInfo(),
-      status: '成功',
+      id: result.user.id,
+      username: result.user.username,
+      realName: result.user.realName,
+      role: result.user.role,
+      permissions: result.user.permissions,
     });
 
     setIsLoading(false);
@@ -300,9 +226,27 @@ export default function LoginPage() {
           </div>
         </div>
 
+        {/* 安全提示 */}
+        <div className="bg-card rounded-2xl border border-border p-4 shadow-sm">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
+            <div className="text-sm">
+              <p className="font-medium text-foreground mb-1">安全提示</p>
+              <p className="text-muted-foreground text-xs leading-relaxed">
+                默认密码已更新，首次登录后请及时修改密码。
+                <br />
+                <span className="text-amber-600 dark:text-amber-400">
+                  admin / Admin@2024! | user / User@2024! | worker / Worker@2024!
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* 版权信息 */}
         <div className="text-center mt-6 text-sm text-muted-foreground">
           <p>© 2026 服装 ERP 系统 技术支持</p>
+          <p className="text-xs mt-1">密码已加密存储 · 登录失败5次将锁定15分钟</p>
         </div>
       </div>
     </div>

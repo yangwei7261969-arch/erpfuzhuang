@@ -43,8 +43,6 @@ import {
 import { useTheme, colorMap, type ThemeColor } from '@/components/providers/ThemeProvider';
 import { useLanguage } from '@/lib/i18n';
 import { db, DB_VERSION, initializeDatabase, resetDatabase, downloadExportFile, readImportFile, type ExportData } from '@/lib/database';
-import { initializeDemoData, isDemoInitialized, getDemoDataStats } from '@/lib/demo-data';
-import { manualSync, getSyncStatus } from '@/lib/database/sync';
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -55,7 +53,6 @@ export default function SettingsPage() {
   const [isImporting, setIsImporting] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [importResult, setImportResult] = useState<{ success: boolean; message: string; imported: number } | null>(null);
@@ -64,28 +61,10 @@ export default function SettingsPage() {
   const [demoInitialized, setDemoInitialized] = useState(false);
   const [demoStats, setDemoStats] = useState<Record<string, number>>({});
   
-  // 同步状态
-  const [syncStatus, setSyncStatus] = useState(() => getSyncStatus());
-  
   // 统计信息
   const [stats, setStats] = useState(() => db.getStats());
   
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // 手动同步
-  const handleManualSync = async () => {
-    setIsSyncing(true);
-    try {
-      const result = await manualSync();
-      setSyncStatus(getSyncStatus());
-      alert(result.message);
-    } catch (error) {
-      console.error('同步失败:', error);
-      alert('同步失败，请重试');
-    } finally {
-      setIsSyncing(false);
-    }
-  };
 
   // 颜色选项
   const colorOptions: { key: ThemeColor; name: string; lightColor: string; darkColor: string }[] = 
@@ -96,28 +75,40 @@ export default function SettingsPage() {
       darkColor: value.dark,
     }));
 
-  // 检查演示数据状态
+  // 检查演示数据状态（从数据库API获取）
   useEffect(() => {
-    setDemoInitialized(isDemoInitialized());
-    setDemoStats(getDemoDataStats());
+    const fetchDataStatus = async () => {
+      try {
+        const response = await fetch('/api/demo-data');
+        if (response.ok) {
+          const data = await response.json();
+          setDemoInitialized(data.isInitialized);
+          setDemoStats(data.counts);
+        }
+      } catch (error) {
+        console.error('获取数据状态失败:', error);
+      }
+    };
+    fetchDataStatus();
   }, []);
 
-  // 初始化演示数据
+  // 初始化演示数据（调用数据库API）
   const handleInitializeDemo = async () => {
     if (!confirm('初始化演示数据将覆盖现有数据，确定要继续吗？')) return;
     
     setIsInitializing(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      const result = initializeDemoData();
+      const response = await fetch('/api/demo-data', { method: 'POST' });
+      const result = await response.json();
+      
       if (result.success) {
         setDemoInitialized(true);
         setDemoStats(result.counts);
         setStats(db.getStats());
-        alert(`演示数据初始化成功！共导入 ${Object.values(result.counts).reduce((a, b) => a + b, 0)} 条数据`);
+        alert(`演示数据初始化成功！共导入 ${result.counts.total} 条数据`);
         window.location.reload();
       } else {
-        alert('初始化失败：' + result.message);
+        alert('初始化失败：' + (result.error || '未知错误'));
       }
     } catch (error) {
       console.error('初始化演示数据失败:', error);
@@ -489,54 +480,38 @@ export default function SettingsPage() {
 
           {/* 存储统计 */}
           <TabsContent value="storage" className="space-y-4">
-            {/* 云端同步状态 */}
+            {/* 数据库状态 */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Database className="w-5 h-5" />
-                  云端同步
+                  数据库存储
                 </CardTitle>
                 <CardDescription>
-                  数据自动同步到服务端，重启后自动恢复
+                  数据存储在 Supabase PostgreSQL 数据库中，支持持久化存储
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-primary/5 rounded-lg border border-primary/20">
+                <div className="flex items-center justify-between p-4 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <RefreshCw className="w-5 h-5 text-primary" />
+                    <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                      <Cloud className="w-5 h-5 text-green-600 dark:text-green-400" />
                     </div>
                     <div>
-                      <Label className="font-medium">同步状态</Label>
-                      <p className="text-sm text-muted-foreground">
-                        数据会自动保存到服务端，重启后自动恢复
+                      <Label className="font-medium text-green-800 dark:text-green-200">数据库已连接</Label>
+                      <p className="text-sm text-green-600 dark:text-green-400">
+                        使用 Supabase PostgreSQL 数据库，数据安全可靠
                       </p>
                     </div>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    onClick={handleManualSync}
-                    disabled={isSyncing}
-                  >
-                    {isSyncing ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        同步中...
-                      </>
-                    ) : (
-                      <>
-                        <RefreshCw className="w-4 h-4 mr-2" />
-                        立即同步
-                      </>
-                    )}
-                  </Button>
+                  <Badge variant="outline" className="border-green-300 text-green-700 dark:border-green-700 dark:text-green-300">
+                    在线
+                  </Badge>
                 </div>
                 
-                {syncStatus.lastSyncTimeStr && (
-                  <div className="text-sm text-muted-foreground">
-                    上次同步时间：{new Date(syncStatus.lastSyncTimeStr).toLocaleString('zh-CN')}
-                  </div>
-                )}
+                <div className="text-sm text-muted-foreground">
+                  演示数据已存储 {demoStats.total || 0} 条记录，可在上方"演示数据"模块重新初始化
+                </div>
               </CardContent>
             </Card>
 

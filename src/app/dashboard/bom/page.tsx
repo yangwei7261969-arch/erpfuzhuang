@@ -106,7 +106,7 @@ export default function BOMPage() {
     const headers = ['BOM单号', '订单号', '款号', '品名', '客户', '订单数量', '单件成本', '总成本', '状态', '创建时间'];
     const rows = filteredBOMs.map(b => [
       b.bomNo, b.orderNo, b.styleNo, b.productName, b.customerName,
-      b.orderQuantity, b.pieceCost.toFixed(2), b.totalCost.toFixed(2), b.status, b.createdAt
+      b.orderQuantity, (b.pieceCost ?? 0).toFixed(2), (b.totalCost ?? 0).toFixed(2), b.status, b.createdAt
     ]);
     
     const csvContent = [
@@ -382,7 +382,7 @@ export default function BOMPage() {
                         <TableCell className="text-gray-300">{bom.productName}</TableCell>
                         <TableCell className="text-gray-300">{bom.customerName}</TableCell>
                         <TableCell className="text-right text-white">{bom.orderQuantity}</TableCell>
-                        <TableCell className="text-right text-green-400 font-medium">¥{bom.pieceCost.toFixed(2)}</TableCell>
+                        <TableCell className="text-right text-green-400 font-medium">¥{(bom.pieceCost ?? 0).toFixed(2)}</TableCell>
                         <TableCell>
                           <Badge className={statusColors[bom.status]}>
                             {bom.status}
@@ -475,7 +475,7 @@ export default function BOMPage() {
                     </div>
                     <div>
                       <span className="text-gray-400">单件成本：</span>
-                      <span className="text-green-400 font-medium">¥{bom.pieceCost.toFixed(2)}</span>
+                      <span className="text-green-400 font-medium">¥{(bom.pieceCost ?? 0).toFixed(2)}</span>
                     </div>
                   </div>
                   <div className="flex gap-2 flex-wrap border-t border-gray-700 pt-3">

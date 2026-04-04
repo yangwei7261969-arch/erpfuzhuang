@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Save, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Save, Eye, EyeOff, AlertCircle, Wallet } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 import { 
   getUsers, 
@@ -131,7 +131,7 @@ export default function UserFormPage() {
     }
     
     saveUsers(users);
-    alert(isEdit ? '用户信息已更新！' : '用户创建成功！');
+    alert(isEdit ? '用户信息已更新！' : '用户创建成功！系统已自动创建工资钱包。');
     router.push('/dashboard/users');
   };
 
@@ -301,6 +301,23 @@ export default function UserFormPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* 提示信息 */}
+        {!isEdit && (
+          <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+            <CardContent className="pt-4">
+              <div className="flex items-start gap-3">
+                <Wallet className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                <div>
+                  <p className="font-medium text-blue-900 dark:text-blue-100">自动创建工资钱包</p>
+                  <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                    创建用户账号后，系统将自动为该用户创建独立的工资钱包，用户登录后可直接查看钱包余额和交易记录。
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="flex justify-end gap-4">
           <Button variant="outline" onClick={() => router.back()}>取消</Button>

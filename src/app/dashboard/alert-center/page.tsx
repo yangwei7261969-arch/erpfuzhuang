@@ -43,14 +43,14 @@ export default function AlertCenterPage() {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [filterLevel, setFilterLevel] = useState('全部');
   const [filterStatus, setFilterStatus] = useState('全部');
-  
-  useEffect(() => {
-    loadData();
-  }, []);
-  
+
   const loadData = () => {
     setAlerts(getSystemAlerts());
   };
+
+  useEffect(() => {
+    loadData();
+  }, []);
   
   const handleProcess = (alert: SystemAlert) => {
     alert.status = '已处理';
