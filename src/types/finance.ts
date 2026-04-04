@@ -791,7 +791,7 @@ export function calculateMaxAdvanceAmount(employeeId: string): number {
 }
 
 // 检查预支资格
-export function checkAdvanceEligibility(employeeId: string): { eligible: boolean; reason?: string } {
+export function checkAdvanceEligibility(employeeId: string, amount?: number): { eligible: boolean; reason?: string } {
   // 检查入职时间（简化逻辑，实际应从员工档案获取）
   const hireDate = new Date('2024-01-01'); // 示例入职日期
   const now = new Date();
@@ -811,7 +811,20 @@ export function checkAdvanceEligibility(employeeId: string): { eligible: boolean
   );
   
   if (monthlyAdvances.length >= 2) {
-    return { eligible: false, reason: '本月预支次数已达上限' };
+    return { eligible: false, reason: '本月预支次数已达上限（每月最多2次）' };
+  }
+  
+  // 检查单笔金额上限
+  if (amount !== undefined && amount > 5000) {
+    return { eligible: false, reason: '单笔预支金额不能超过5000元' };
+  }
+  
+  // 检查30%工资上限
+  if (amount !== undefined) {
+    const maxAdvance = calculateMaxAdvanceAmount(employeeId);
+    if (amount > maxAdvance) {
+      return { eligible: false, reason: `预支金额不能超过本月工资的30%（最多${maxAdvance}元）` };
+    }
   }
   
   return { eligible: true };
@@ -868,6 +881,44 @@ export function unfreezeSalary(employeeId: string, year: number, month: number):
   
   // 更新钱包
   updateEmployeeWallet(employeeId);
+  
+  // 记录钱包交易
+  if (salary.availableAmount > 0) {
+    const transaction: WalletTransaction = {
+      id: `wt${Date.now()}${Math.random()}`,
+      employeeId,
+      transactionNo: `WT${new Date().toISOString().slice(0, 10).replace(/-/g, '')}${walletTransactions.length + 1}`,
+      type: '工资解冻',
+      amount: salary.availableAmount,
+      balance: salary.availableAmount,
+      relatedId: salary.id,
+      remark: `${year}年${month}月工资解冻`,
+      createdAt: new Date().toISOString(),
+    };
+    saveWalletTransaction(transaction);
+  }
+}
+
+// 压薪1个月自动解冻
+export function autoUnfreezeSalary(): void {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  
+  // 计算需要解冻的月份（上个月）
+  let unfreezeYear = currentYear;
+  let unfreezeMonth = currentMonth - 1;
+  if (unfreezeMonth < 1) {
+    unfreezeYear -= 1;
+    unfreezeMonth = 12;
+  }
+  
+  // 解冻所有员工上个月的工资
+  for (const salary of monthlySalaries) {
+    if (salary.year === unfreezeYear && salary.month === unfreezeMonth && salary.status === '冻结中') {
+      unfreezeSalary(salary.employeeId, salary.year, salary.month);
+    }
+  }
 }
 
 // 更新员工钱包
@@ -941,7 +992,10 @@ export function approveReimbursementApplication(
 
   const now = new Date().toISOString();
 
-  // 根据当前状态确定审核级别
+  // 根据金额和当前状态确定审核流程
+  const isHighAmount = application.amount > 5000;
+
+  // 主管审核
   if (application.status === '待审核') {
     application.supervisorApproval = {
       approverId,
@@ -950,21 +1004,16 @@ export function approveReimbursementApplication(
       comment: comment || '',
       approvedAt: now,
     };
-    application.status = approved ? '财务审核中' : '已驳回';
+    
     if (!approved) {
+      application.status = '已驳回';
       application.rejectionReason = comment;
-    }
-  } else if (application.status === '财务审核中') {
-    application.financeApproval = {
-      approverId,
-      approverName,
-      approved,
-      comment: comment || '',
-      approvedAt: now,
-    };
-    application.status = approved ? '老板审核中' : '已驳回';
-    if (!approved) {
-      application.rejectionReason = comment;
+    } else if (isHighAmount) {
+      // 金额大于5000，需要老板终审
+      application.status = '老板审核中';
+    } else {
+      // 金额≤5000，主管审批后直接通过
+      application.status = '已通过';
     }
   } else if (application.status === '老板审核中') {
     application.bossApproval = {
@@ -983,7 +1032,7 @@ export function approveReimbursementApplication(
   application.updatedAt = now;
   updateReimbursementApplication(id, application);
 
-  // 如果审核通过且是最终审核，创建报销记录
+  // 如果审核通过，创建报销记录
   if (approved && application.status === '已通过') {
     const record: ReimbursementRecord = {
       id: `rbr${Date.now()}${Math.random()}`,
@@ -998,19 +1047,485 @@ export function approveReimbursementApplication(
     };
     saveReimbursementRecord(record);
 
-    // 更新钱包
+    // 更新钱包（报销余额独立于工资）
     updateEmployeeWallet(application.employeeId);
   }
+}
+
+// 财务处理报销打款
+export function processReimbursementPayment(
+  id: string,
+  transferReceiptImages: string[],
+  paymentMethod: '银行卡' | '微信' | '支付宝',
+  accountInfo: {
+    accountName: string;
+    accountNumber: string;
+    bankName?: string;
+  }
+): void {
+  const application = getReimbursementApplicationById(id);
+  if (!application || application.status !== '已通过') return;
+  
+  const now = new Date().toISOString();
+  
+  // 更新报销申请状态为已到账
+  application.status = '已到账';
+  application.updatedAt = now;
+  updateReimbursementApplication(id, application);
+  
+  // 更新钱包和交易记录
+  const wallet = getEmployeeWallet(application.employeeId);
+  if (wallet) {
+    wallet.reimbursementBalance += application.amount;
+    wallet.totalReimbursed += application.amount;
+    wallet.updatedAt = now;
+    saveEmployeeWallet(wallet);
+    
+    // 记录钱包交易
+    const transaction: WalletTransaction = {
+      id: `wt${Date.now()}${Math.random()}`,
+      employeeId: application.employeeId,
+      transactionNo: `WT${new Date().toISOString().slice(0, 10).replace(/-/g, '')}${walletTransactions.length + 1}`,
+      type: '报销到账',
+      amount: application.amount,
+      balance: wallet.reimbursementBalance,
+      relatedId: application.id,
+      remark: `报销${application.amount}元`,
+      evidenceImages: transferReceiptImages,
+      createdAt: now,
+    };
+    saveWalletTransaction(transaction);
+  }
+}
+
+// 验证发票
+function validateInvoice(invoiceNumber: string, amount: number, date: string): { valid: boolean; message?: string } {
+  // 模拟发票验证逻辑
+  // 实际应用中应调用税务API或第三方服务
+  if (!invoiceNumber || invoiceNumber.length < 8) {
+    return { valid: false, message: '发票号码格式不正确' };
+  }
+  
+  if (amount <= 0) {
+    return { valid: false, message: '发票金额必须大于0' };
+  }
+  
+  const invoiceDate = new Date(date);
+  if (isNaN(invoiceDate.getTime())) {
+    return { valid: false, message: '发票日期格式不正确' };
+  }
+  
+  // 检查发票日期是否在合理范围内（不超过1年）
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+  if (invoiceDate < oneYearAgo) {
+    return { valid: false, message: '发票日期超过1年，无法报销' };
+  }
+  
+  return { valid: true };
+}
+
+// 上传发票
+export async function uploadInvoice(files: File[], invoiceInfo: {
+  invoiceNumber: string;
+  amount: number;
+  date: string;
+  seller: string;
+}): Promise<{ success: boolean; message: string; fileNames?: string[] }> {
+  try {
+    // 验证发票信息
+    const validation = validateInvoice(invoiceInfo.invoiceNumber, invoiceInfo.amount, invoiceInfo.date);
+    if (!validation.valid) {
+      return { success: false, message: validation.message || '发票验证失败' };
+    }
+    
+    // 上传发票文件
+    const fileNames = await uploadFiles(files);
+    return { success: true, message: '发票上传成功', fileNames };
+  } catch (error) {
+    console.error('上传发票失败:', error);
+    return { success: false, message: '发票上传失败' };
+  }
+}
+
+// 获取报销详情（包含所有审核记录和附件）
+export function getReimbursementDetails(id: string): {
+  application: ReimbursementApplication | null;
+  transaction?: WalletTransaction;
+  attachments: string[];
+} {
+  const application = getReimbursementApplicationById(id);
+  if (!application) {
+    return { application: null, attachments: [] };
+  }
+  
+  // 查找相关的钱包交易
+  const transaction = walletTransactions.find(
+    t => t.relatedId === id && t.type === '报销到账'
+  );
+  
+  return {
+    application,
+    transaction,
+    attachments: application.attachments || [],
+  };
+}
+
+// 报销提现（从报销余额中提现）
+export function requestReimbursementWithdrawal(
+  employeeId: string,
+  amount: number,
+  method: '银行卡' | '微信' | '支付宝',
+  accountInfo: {
+    accountName: string;
+    accountNumber: string;
+    bankName?: string;
+  }
+): { success: boolean; message: string } {
+  // 检查报销余额
+  const wallet = getEmployeeWallet(employeeId);
+  if (!wallet || wallet.reimbursementBalance < amount) {
+    return { success: false, message: '报销余额不足' };
+  }
+  
+  // 创建提现申请（专门用于报销提现）
+  const application: Omit<WithdrawalApplication, 'id'> = {
+    withdrawalNo: `WD${new Date().toISOString().slice(0, 10).replace(/-/g, '')}${withdrawalApplications.length + 1}`,
+    employeeId,
+    employeeName: wallet.employeeName,
+    amount,
+    method,
+    accountInfo,
+    status: '待审核',
+    transferReceiptImages: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  
+  try {
+    addWithdrawalApplication(application);
+    return { success: true, message: '提现申请提交成功' };
+  } catch (error) {
+    console.error('提交提现申请失败:', error);
+    return { success: false, message: '提现申请提交失败' };
+  }
+}
+
+// 检查提现资格
+export function checkWithdrawalEligibility(employeeId: string): { eligible: boolean; reason?: string } {
+  // 检查本月提现次数
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+  
+  const monthlyWithdrawals = withdrawalApplications.filter(
+    w => w.employeeId === employeeId && 
+         new Date(w.createdAt).getFullYear() === currentYear &&
+         new Date(w.createdAt).getMonth() + 1 === currentMonth
+  );
+  
+  if (monthlyWithdrawals.length >= 1) {
+    return { eligible: false, reason: '本月已提现，每月仅可提现1次' };
+  }
+  
+  // 检查可用余额
+  const wallet = getEmployeeWallet(employeeId);
+  if (!wallet || wallet.availableSalary <= 0) {
+    return { eligible: false, reason: '可用余额不足' };
+  }
+  
+  return { eligible: true };
+}
+
+// 处理提现申请
+export function processWithdrawalApplication(id: string, status: '已到账' | '已失败', failureReason?: string, transferReceiptImages?: string[]): void {
+  const application = withdrawalApplications.find(w => w.id === id);
+  if (!application) return;
+  
+  application.status = status;
+  application.failureReason = failureReason;
+  application.transferReceiptImages = transferReceiptImages || [];
+  application.processedAt = new Date().toISOString();
+  application.updatedAt = new Date().toISOString();
+  
+  saveWithdrawalApplication(application);
+  
+  // 如果提现成功，更新钱包和交易记录
+  if (status === '已到账') {
+    const wallet = getEmployeeWallet(application.employeeId);
+    if (wallet) {
+      wallet.availableSalary -= application.amount;
+      wallet.totalWithdrawn += application.amount;
+      wallet.updatedAt = new Date().toISOString();
+      saveEmployeeWallet(wallet);
+      
+      // 记录钱包交易
+      const transaction: WalletTransaction = {
+        id: `wt${Date.now()}${Math.random()}`,
+        employeeId: application.employeeId,
+        transactionNo: `WT${new Date().toISOString().slice(0, 10).replace(/-/g, '')}${walletTransactions.length + 1}`,
+        type: '工资提现',
+        amount: -application.amount,
+        balance: wallet.availableSalary,
+        relatedId: application.id,
+        remark: `提现${application.amount}元`,
+        evidenceImages: transferReceiptImages,
+        createdAt: new Date().toISOString(),
+      };
+      saveWalletTransaction(transaction);
+    }
+  }
+}
+
+// 离职清欠检查
+export function checkEmployeeDebtBeforeDeparture(employeeId: string): { hasDebt: boolean; totalDebt: number; debts: AdvanceDebt[] } {
+  const debts = advanceDebts.filter(d => d.employeeId === employeeId && d.status === '未结清');
+  const totalDebt = debts.reduce((sum, d) => sum + d.remainingAmount, 0);
+  
+  return { hasDebt: totalDebt > 0, totalDebt, debts };
+}
+
+// 处理离职清欠
+export function processDepartureDebt(employeeId: string, paymentAmount: number): { success: boolean; remainingDebt: number } {
+  const { hasDebt, totalDebt, debts } = checkEmployeeDebtBeforeDeparture(employeeId);
+  
+  if (!hasDebt) {
+    return { success: true, remainingDebt: 0 };
+  }
+  
+  let remainingPayment = paymentAmount;
+  let remainingDebt = totalDebt;
+  
+  for (const debt of debts) {
+    if (remainingPayment <= 0) break;
+    
+    const payAmount = Math.min(remainingPayment, debt.remainingAmount);
+    debt.paidAmount += payAmount;
+    debt.remainingAmount -= payAmount;
+    
+    if (debt.remainingAmount <= 0) {
+      debt.status = '已结清';
+    }
+    
+    saveAdvanceDebt(debt);
+    remainingPayment -= payAmount;
+    remainingDebt -= payAmount;
+  }
+  
+  // 更新钱包
+  updateEmployeeWallet(employeeId);
+  
+  return { success: remainingDebt === 0, remainingDebt };
 }
 
 // ===== 提现业务逻辑函数 =====
 
 // 添加提现申请
 export function addWithdrawalApplication(application: Omit<WithdrawalApplication, 'id'>): void {
+  // 检查提现资格
+  const eligibility = checkWithdrawalEligibility(application.employeeId);
+  if (!eligibility.eligible) {
+    throw new Error(eligibility.reason || '提现资格检查失败');
+  }
+  
   const newApplication: WithdrawalApplication = {
     ...application,
     id: `wd${Date.now()}${Math.random()}`,
   };
   withdrawalApplications.push(newApplication);
   localStorage.setItem(WITHDRAWAL_APPLICATIONS_KEY, JSON.stringify(withdrawalApplications));
+}
+
+// ===== 文件上传相关函数 =====
+
+/**
+ * 上传文件到本地存储（模拟）
+ * 实际应用中应上传到服务器
+ */
+export async function uploadFile(file: File): Promise<string> {
+  // 生成唯一文件名
+  const fileName = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}${getFileExtension(file.name)}`;
+  
+  // 读取文件内容为base64
+  const base64 = await fileToBase64(file);
+  
+  // 存储到localStorage（实际应用中应上传到服务器）
+  const uploadsKey = 'erp_file_uploads';
+  const uploads = JSON.parse(localStorage.getItem(uploadsKey) || '{}');
+  uploads[fileName] = base64;
+  localStorage.setItem(uploadsKey, JSON.stringify(uploads));
+  
+  return fileName;
+}
+
+/**
+ * 将文件转换为base64
+ */
+export function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = error => reject(error);
+    reader.readAsDataURL(file);
+  });
+}
+
+/**
+ * 获取文件扩展名
+ */
+export function getFileExtension(filename: string): string {
+  const lastDotIndex = filename.lastIndexOf('.');
+  return lastDotIndex > 0 ? filename.substring(lastDotIndex) : '';
+}
+
+/**
+ * 验证文件类型
+ */
+export function validateFileType(file: File): { valid: boolean; message?: string } {
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'application/pdf'];
+  if (!allowedTypes.includes(file.type)) {
+    return { valid: false, message: '不支持的文件类型，仅支持JPG、PNG、GIF和PDF' };
+  }
+  return { valid: true };
+}
+
+/**
+ * 验证文件大小
+ */
+export function validateFileSize(file: File, maxSizeMB: number = 5): { valid: boolean; message?: string } {
+  const maxSizeBytes = maxSizeMB * 1024 * 1024;
+  if (file.size > maxSizeBytes) {
+    return { valid: false, message: `文件大小超过限制，最大${maxSizeMB}MB` };
+  }
+  return { valid: true };
+}
+
+/**
+ * 上传多个文件
+ */
+export async function uploadFiles(files: File[]): Promise<string[]> {
+  const uploadedFiles: string[] = [];
+  for (const file of files) {
+    const typeValidation = validateFileType(file);
+    if (!typeValidation.valid) {
+      throw new Error(typeValidation.message);
+    }
+    
+    const sizeValidation = validateFileSize(file);
+    if (!sizeValidation.valid) {
+      throw new Error(sizeValidation.message);
+    }
+    
+    const fileName = await uploadFile(file);
+    uploadedFiles.push(fileName);
+  }
+  return uploadedFiles;
+}
+
+/**
+ * 获取文件URL
+ */
+export function getFileUrl(fileName: string): string | null {
+  const uploadsKey = 'erp_file_uploads';
+  const uploads = JSON.parse(localStorage.getItem(uploadsKey) || '{}');
+  return uploads[fileName] || null;
+}
+
+/**
+ * 删除文件
+ */
+export function deleteFile(fileName: string): boolean {
+  const uploadsKey = 'erp_file_uploads';
+  const uploads = JSON.parse(localStorage.getItem(uploadsKey) || '{}');
+  if (uploads[fileName]) {
+    delete uploads[fileName];
+    localStorage.setItem(uploadsKey, JSON.stringify(uploads));
+    return true;
+  }
+  return false;
+}
+
+/**
+ * 批量删除文件
+ */
+export function deleteFiles(fileNames: string[]): void {
+  const uploadsKey = 'erp_file_uploads';
+  const uploads = JSON.parse(localStorage.getItem(uploadsKey) || '{}');
+  fileNames.forEach(fileName => {
+    if (uploads[fileName]) {
+      delete uploads[fileName];
+    }
+  });
+  localStorage.setItem(uploadsKey, JSON.stringify(uploads));
+}
+
+/**
+ * 预览文件
+ */
+export function previewFile(fileName: string): void {
+  const fileUrl = getFileUrl(fileName);
+  if (fileUrl) {
+    window.open(fileUrl, '_blank');
+  }
+}
+
+/**
+ * 下载文件
+ */
+export function downloadFile(fileName: string): void {
+  const fileUrl = getFileUrl(fileName);
+  if (fileUrl) {
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+}
+
+/**
+ * 增强的回执上传功能
+ */
+export async function uploadReceipts(files: File[]): Promise<string[]> {
+  try {
+    return await uploadFiles(files);
+  } catch (error) {
+    console.error('上传回执失败:', error);
+    throw error;
+  }
+}
+
+/**
+ * 增强的附件上传功能
+ */
+export async function uploadAttachments(files: File[]): Promise<string[]> {
+  try {
+    return await uploadFiles(files);
+  } catch (error) {
+    console.error('上传附件失败:', error);
+    throw error;
+  }
+}
+
+/**
+ * 清理过期文件
+ */
+export function cleanupExpiredFiles(days: number = 30): void {
+  const uploadsKey = 'erp_file_uploads';
+  const uploads = JSON.parse(localStorage.getItem(uploadsKey) || '{}');
+  const cutoffTime = Date.now() - days * 24 * 60 * 60 * 1000;
+  
+  Object.keys(uploads).forEach(fileName => {
+    // 从文件名中提取时间戳
+    const timestampMatch = fileName.match(/upload_(\d+)_/);
+    if (timestampMatch) {
+      const timestamp = parseInt(timestampMatch[1]);
+      if (timestamp < cutoffTime) {
+        delete uploads[fileName];
+      }
+    }
+  });
+  
+  localStorage.setItem(uploadsKey, JSON.stringify(uploads));
 }

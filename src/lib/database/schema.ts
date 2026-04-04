@@ -82,6 +82,12 @@ export const TABLES = {
   SALARIES: 'erp_salaries',             // 工资表
   EXPENSES: 'erp_expenses',             // 费用
   LEDGERS: 'erp_ledgers',               // 台账
+  
+  // 钱包管理 (61-65)
+  WALLET_FLOW: 'erp_wallet_flow',       // 钱包流水
+  ADVANCE_LOG: 'erp_advance_log',       // 预支明细
+  REIMBURSE: 'erp_reimburse',           // 报销完整记录
+  RISK_EXCEPTIONS: 'erp_risk_exceptions', // 风控异常表
 
   // 审核管理 (61-65)
   AUDIT_FLOWS: 'erp_audit_flows',       // 审核流程
@@ -851,6 +857,102 @@ export interface SystemSettings {
   language: 'zh-CN' | 'en-US' | 'ja-JP';
 }
 
+// 钱包流水
+export interface WalletFlow extends BaseEntity {
+  flowNo: string;
+  employeeId: string;
+  employeeName: string;
+  type: '工资解冻' | '预支到账' | '工资抵扣' | '工资提现' | '报销到账' | '报销提现';
+  amount: number;
+  balance: number;
+  relatedId?: string;
+  relatedType?: string;
+  remark: string;
+  evidenceImages?: string[];
+  status: '成功' | '失败' | '处理中';
+}
+
+// 预支明细
+export interface AdvanceLog extends BaseEntity {
+  logNo: string;
+  advanceId: string;
+  advanceNo: string;
+  employeeId: string;
+  employeeName: string;
+  amount: number;
+  reason: string;
+  status: '待审核' | '已通过' | '已驳回' | '已到账' | '部分抵扣' | '已结清';
+  workshopAuditor?: string;
+  financeAuditor?: string;
+  paidAt?: string;
+  deductionRecords: {
+    id: string;
+    amount: number;
+    deductionDate: string;
+    salaryId: string;
+  }[];
+}
+
+// 报销完整记录
+export interface Reimburse extends BaseEntity {
+  reimburseNo: string;
+  employeeId: string;
+  employeeName: string;
+  category: '出差车费' | '油费' | '路费' | '采购辅料' | '配件小额杂费' | '快递物流费' | '食堂食材杂费' | '办公耗材费' | '维修设备费' | '其他因公临时杂费';
+  amount: number;
+  useDate: string;
+  description: string;
+  attachments: string[];
+  status: '待审核' | '主管审核中' | '财务审核中' | '老板审核中' | '已通过' | '已驳回' | '已到账';
+  supervisorApproval?: {
+    approverId: string;
+    approverName: string;
+    approved: boolean;
+    comment: string;
+    approvedAt: string;
+  };
+  financeApproval?: {
+    approverId: string;
+    approverName: string;
+    approved: boolean;
+    comment: string;
+    approvedAt: string;
+  };
+  bossApproval?: {
+    approverId: string;
+    approverName: string;
+    approved: boolean;
+    comment: string;
+    approvedAt: string;
+  };
+  rejectionReason?: string;
+  paidAt?: string;
+  paymentMethod?: '银行卡' | '微信' | '支付宝';
+  accountInfo?: {
+    accountName: string;
+    accountNumber: string;
+    bankName?: string;
+  };
+}
+
+// 风控异常表
+export interface RiskException extends BaseEntity {
+  exceptionNo: string;
+  employeeId?: string;
+  employeeName?: string;
+  type: '频繁换卡' | '异地登录' | '异常提现' | '超额预支' | '可疑操作';
+  severity: '低' | '中' | '高' | '严重';
+  description: string;
+  evidence: string[];
+  status: '待处理' | '处理中' | '已解决' | '已忽略';
+  handler?: string;
+  handledAt?: string;
+  handlingNotes?: string;
+  riskScore: number;
+  freezeAccount: boolean;
+  freezeUntil?: string;
+}
+
 // 序列号
 export interface Sequence {
   prefix: string;
@@ -889,4 +991,8 @@ export type EntityType =
   | PieceWage
   | AlertRule
   | SystemSettings
-  | Sequence;
+  | Sequence
+  | WalletFlow
+  | AdvanceLog
+  | Reimburse
+  | RiskException;

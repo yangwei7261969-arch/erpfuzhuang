@@ -325,6 +325,225 @@ export function clearCurrentUser(): void {
   }
 }
 
+// ==================== 风控冻结逻辑 ====================
+
+// 锁定用户账户
+export function lockUserAccount(userId: string, durationMinutes: number, reason: string): void {
+  if (typeof window === 'undefined') return;
+  
+  const lockoutsKey = 'erp_user_lockouts';
+  const lockouts = getItem<Record<string, { lockedUntil: number; reason: string }>>(lockoutsKey) || {};
+  
+  lockouts[userId] = {
+    lockedUntil: Date.now() + durationMinutes * 60 * 1000,
+    reason
+  };
+  
+  setItem(lockoutsKey, lockouts);
+  
+  // 记录安全事件
+  logSecurityEvent({
+    type: 'security_event',
+    severity: 'high',
+    action: '账户锁定',
+    details: `用户 ${userId} 因 ${reason} 被锁定 ${durationMinutes} 分钟`,
+    success: true
+  });
+}
+
+// 解锁用户账户
+export function unlockUserAccount(userId: string): void {
+  if (typeof window === 'undefined') return;
+  
+  const lockoutsKey = 'erp_user_lockouts';
+  const lockouts = getItem<Record<string, { lockedUntil: number; reason: string }>>(lockoutsKey) || {};
+  
+  delete lockouts[userId];
+  setItem(lockoutsKey, lockouts);
+  
+  // 记录安全事件
+  logSecurityEvent({
+    type: 'security_event',
+    severity: 'medium',
+    action: '账户解锁',
+    details: `用户 ${userId} 账户已解锁`,
+    success: true
+  });
+}
+
+// 检查用户账户是否被锁定
+export function isUserLocked(userId: string): { locked: boolean; remainingTime?: number; reason?: string } {
+  if (typeof window === 'undefined') return { locked: false };
+  
+  const lockoutsKey = 'erp_user_lockouts';
+  const lockouts = getItem<Record<string, { lockedUntil: number; reason: string }>>(lockoutsKey) || {};
+  
+  const lockout = lockouts[userId];
+  if (!lockout) return { locked: false };
+  
+  const now = Date.now();
+  if (now < lockout.lockedUntil) {
+    const remainingTime = Math.ceil((lockout.lockedUntil - now) / 1000 / 60);
+    return { locked: true, remainingTime, reason: lockout.reason };
+  }
+  
+  // 锁定已过期，自动解锁
+  delete lockouts[userId];
+  setItem(lockoutsKey, lockouts);
+  
+  return { locked: false };
+}
+
+// 检查异地登录
+export function check异地登录(userId: string, ipAddress: string, userAgent: string): boolean {
+  if (typeof window === 'undefined') return false;
+  
+  const loginHistoryKey = 'erp_login_history';
+  const loginHistory = getItem<Record<string, { ip: string; userAgent: string; timestamp: number }[]>>(loginHistoryKey) || {};
+  
+  if (!loginHistory[userId]) {
+    // 首次登录，记录登录信息
+    loginHistory[userId] = [{
+      ip: ipAddress,
+      userAgent,
+      timestamp: Date.now()
+    }];
+    setItem(loginHistoryKey, loginHistory);
+    return false;
+  }
+  
+  // 获取最近的登录记录
+  const recentLogins = loginHistory[userId].slice(-5); // 最近5次登录
+  const lastLogin = recentLogins[recentLogins.length - 1];
+  
+  // 检查IP地址是否不同
+  if (lastLogin.ip !== ipAddress) {
+    // 记录异地登录事件
+    logSecurityEvent({
+      type: 'security_event',
+      severity: 'medium',
+      action: '异地登录检测',
+      details: `用户 ${userId} 从新IP ${ipAddress} 登录，上次登录IP为 ${lastLogin.ip}`,
+      success: true
+    });
+    
+    // 锁定账户24小时
+    lockUserAccount(userId, 24 * 60, '异地登录检测');
+    return true;
+  }
+  
+  // 更新登录历史
+  loginHistory[userId].push({
+    ip: ipAddress,
+    userAgent,
+    timestamp: Date.now()
+  });
+  
+  // 只保留最近10次登录记录
+  if (loginHistory[userId].length > 10) {
+    loginHistory[userId] = loginHistory[userId].slice(-10);
+  }
+  
+  setItem(loginHistoryKey, loginHistory);
+  return false;
+}
+
+// 检查频繁换卡
+export function check频繁换卡(userId: string, bankCard: string): boolean {
+  if (typeof window === 'undefined') return false;
+  
+  const cardHistoryKey = 'erp_card_history';
+  const cardHistory = getItem<Record<string, { card: string; timestamp: number }[]>>(cardHistoryKey) || {};
+  
+  if (!cardHistory[userId]) {
+    // 首次绑定银行卡，记录信息
+    cardHistory[userId] = [{
+      card: bankCard,
+      timestamp: Date.now()
+    }];
+    setItem(cardHistoryKey, cardHistory);
+    return false;
+  }
+  
+  // 获取最近的换卡记录
+  const recentCards = cardHistory[userId].slice(-3); // 最近3次换卡
+  const lastCard = recentCards[recentCards.length - 1];
+  
+  // 检查是否是新卡
+  if (lastCard.card !== bankCard) {
+    // 检查换卡频率（24小时内）
+    const now = Date.now();
+    const recentCardChanges = recentCards.filter(c => now - c.timestamp < 24 * 60 * 60 * 1000);
+    
+    if (recentCardChanges.length >= 2) {
+      // 24小时内换卡超过2次，锁定账户
+      logSecurityEvent({
+        type: 'security_event',
+        severity: 'high',
+        action: '频繁换卡检测',
+        details: `用户 ${userId} 在24小时内频繁更换银行卡，已锁定账户`,
+        success: true
+      });
+      
+      lockUserAccount(userId, 24 * 60, '频繁换卡检测');
+      return true;
+    }
+    
+    // 记录新卡信息
+    cardHistory[userId].push({
+      card: bankCard,
+      timestamp: Date.now()
+    });
+    
+    // 只保留最近10次换卡记录
+    if (cardHistory[userId].length > 10) {
+      cardHistory[userId] = cardHistory[userId].slice(-10);
+    }
+    
+    setItem(cardHistoryKey, cardHistory);
+  }
+  
+  return false;
+}
+
+// 检查唯一实名校验
+export function verifyRealName(userId: string, realName: string, idCard: string): boolean {
+  if (typeof window === 'undefined') return false;
+  
+  const realNameKey = 'erp_real_name_verification';
+  const verifications = getItem<Record<string, { realName: string; idCard: string; verified: boolean }>>(realNameKey) || {};
+  
+  if (verifications[userId]) {
+    // 已验证过，检查是否匹配
+    return verifications[userId].realName === realName && 
+           verifications[userId].idCard === idCard && 
+           verifications[userId].verified;
+  }
+  
+  // 模拟实名校验（实际应调用第三方API）
+  const isVerified = /^[\u4e00-\u9fa5]{2,4}$/.test(realName) && 
+                    /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/.test(idCard);
+  
+  verifications[userId] = {
+    realName,
+    idCard,
+    verified: isVerified
+  };
+  
+  setItem(realNameKey, verifications);
+  
+  // 记录实名校验事件
+  logSecurityEvent({
+    type: 'security_event',
+    severity: 'medium',
+    action: '实名校验',
+    details: `用户 ${userId} 实名校验${isVerified ? '成功' : '失败'}`,
+    success: isVerified
+  });
+  
+  return isVerified;
+}
+
 // 更新用户最后登录时间
 export function updateLastLogin(username: string): void {
   const users = getUsers();

@@ -8,6 +8,10 @@
  * 4. 数据迁移
  */
 
+// 加载环境变量
+import dotenv from 'dotenv';
+dotenv.config();
+
 // ==================== 数据库存储键 ====================
 export const DB_KEYS = {
   // 基础资料
@@ -53,6 +57,12 @@ export const DB_KEYS = {
   PAYMENTS: 'erp_payments',
   RECEIPTS: 'erp_receipts',
   
+  // 钱包管理
+  WALLET_FLOW: 'erp_wallet_flow',
+  ADVANCE_LOG: 'erp_advance_log',
+  REIMBURSE: 'erp_reimburse',
+  RISK_EXCEPTIONS: 'erp_risk_exceptions',
+  
   // 发货相关
   DELIVERIES: 'erp_deliveries',
   PACKING_BOXES: 'erp_packing_boxes',
@@ -72,6 +82,23 @@ export const DB_KEYS = {
 
 // ==================== 数据库版本 ====================
 export const DB_VERSION = '2.0.0';
+
+// ==================== 环境配置 ====================
+export const CONFIG = {
+  port: process.env.PORT || 5000,
+  nodeEnv: process.env.NODE_ENV || 'development',
+  databaseUrl: process.env.DATABASE_URL,
+  jwtSecret: process.env.JWT_SECRET || 'erp_secret_key',
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || '24h',
+  appName: process.env.APP_NAME || '服装生产ERP系统',
+  appVersion: process.env.APP_VERSION || '1.0.0',
+  uploadMaxSize: process.env.UPLOAD_MAX_SIZE || '5mb',
+  uploadAllowedTypes: process.env.UPLOAD_ALLOWED_TYPES?.split(',') || ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'application/pdf'],
+  rateLimitMax: parseInt(process.env.RATE_LIMIT_MAX || '100'),
+  rateLimitWindow: process.env.RATE_LIMIT_WINDOW || '60s',
+  backupInterval: process.env.BACKUP_INTERVAL || '24h',
+  backupRetention: process.env.BACKUP_RETENTION || '7d',
+};
 
 // ==================== 导出数据结构 ====================
 export interface ExportData {
@@ -119,6 +146,12 @@ export interface ExportData {
       payables: unknown[];
       payments: unknown[];
       receipts: unknown[];
+    };
+    wallet: {
+      walletFlow: unknown[];
+      advanceLogs: unknown[];
+      reimburses: unknown[];
+      riskExceptions: unknown[];
     };
     delivery: {
       deliveries: unknown[];
@@ -274,6 +307,12 @@ class Database {
           payments: this.get(DB_KEYS.PAYMENTS) || [],
           receipts: this.get(DB_KEYS.RECEIPTS) || [],
         },
+        wallet: {
+          walletFlow: this.get(DB_KEYS.WALLET_FLOW) || [],
+          advanceLogs: this.get(DB_KEYS.ADVANCE_LOG) || [],
+          reimburses: this.get(DB_KEYS.REIMBURSE) || [],
+          riskExceptions: this.get(DB_KEYS.RISK_EXCEPTIONS) || [],
+        },
         delivery: {
           deliveries: this.get(DB_KEYS.DELIVERIES) || [],
           packingBoxes: this.get(DB_KEYS.PACKING_BOXES) || [],
@@ -394,6 +433,12 @@ class Database {
         payables: DB_KEYS.PAYABLES,
         payments: DB_KEYS.PAYMENTS,
         receipts: DB_KEYS.RECEIPTS,
+      },
+      wallet: {
+        walletFlow: DB_KEYS.WALLET_FLOW,
+        advanceLogs: DB_KEYS.ADVANCE_LOG,
+        reimburses: DB_KEYS.REIMBURSE,
+        riskExceptions: DB_KEYS.RISK_EXCEPTIONS,
       },
       delivery: {
         deliveries: DB_KEYS.DELIVERIES,

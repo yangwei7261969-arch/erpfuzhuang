@@ -314,6 +314,143 @@ export const issueProduction = (orderId: string) => {
   }
 };
 
+// ==================== 订单拆分与合并 ====================
+
+// 拆分订单
+export const splitOrder = (orderId: string, splitItems: { colorName: string; sizes: { size: string; quantity: number }[] }[]): Order[] => {
+  if (typeof window === 'undefined') return [];
+  
+  const orders = getOrders();
+  const originalOrder = orders.find(o => o.id === orderId);
+  if (!originalOrder) return [];
+  
+  const newOrders: Order[] = [];
+  
+  splitItems.forEach((splitItem, index) => {
+    // 计算拆分订单的总数量
+    const totalQuantity = splitItem.sizes.reduce((sum, size) => sum + size.quantity, 0);
+    
+    // 生成新的色码矩阵
+    const colorSizeMatrix: ColorSizeMatrix[] = [{
+      colorName: splitItem.colorName,
+      S: splitItem.sizes.find(s => s.size === 'S')?.quantity || 0,
+      M: splitItem.sizes.find(s => s.size === 'M')?.quantity || 0,
+      L: splitItem.sizes.find(s => s.size === 'L')?.quantity || 0,
+      XL: splitItem.sizes.find(s => s.size === 'XL')?.quantity || 0,
+      XXL: splitItem.sizes.find(s => s.size === 'XXL')?.quantity || 0,
+      XXXL: splitItem.sizes.find(s => s.size === 'XXXL')?.quantity || 0,
+      subtotal: totalQuantity
+    }];
+    
+    // 创建新订单
+    const newOrder: Order = {
+      ...originalOrder,
+      id: `order_${Date.now()}_${index}`,
+      orderNo: `${originalOrder.orderNo}-${index + 1}`,
+      colorSizeMatrix,
+      totalQuantity,
+      amount: originalOrder.unitPrice * totalQuantity,
+      status: '草稿',
+      createdBy: originalOrder.createdBy,
+      createdAt: new Date().toISOString(),
+      auditedBy: undefined,
+      auditedAt: undefined,
+      productionIssuedAt: undefined,
+      productionIssuedBy: undefined,
+      updatedAt: new Date().toISOString()
+    };
+    
+    newOrders.push(newOrder);
+  });
+  
+  // 保存新订单
+  orders.push(...newOrders);
+  
+  // 标记原订单为已拆分
+  originalOrder.status = '已作废';
+  originalOrder.updatedAt = new Date().toISOString();
+  
+  localStorage.setItem(DB_KEYS.ORDERS, JSON.stringify(orders));
+  
+  return newOrders;
+};
+
+// 合并订单
+export const mergeOrders = (orderIds: string[]): Order | null => {
+  if (typeof window === 'undefined' || orderIds.length < 2) return null;
+  
+  const orders = getOrders();
+  const ordersToMerge = orders.filter(o => orderIds.includes(o.id));
+  
+  if (ordersToMerge.length < 2) return null;
+  
+  // 检查订单是否可以合并（相同客户、产品、工艺要求等）
+  const firstOrder = ordersToMerge[0];
+  const canMerge = ordersToMerge.every(order => 
+    order.customerId === firstOrder.customerId &&
+    order.productCode === firstOrder.productCode &&
+    order.styleNo === firstOrder.styleNo &&
+    order.productName === firstOrder.productName &&
+    order.status === '草稿' || order.status === '待审核'
+  );
+  
+  if (!canMerge) return null;
+  
+  // 合并色码矩阵
+  const mergedMatrix: ColorSizeMatrix[] = [];
+  ordersToMerge.forEach(order => {
+    order.colorSizeMatrix.forEach(item => {
+      const existingItem = mergedMatrix.find(m => m.colorName === item.colorName);
+      if (existingItem) {
+        existingItem.S += item.S;
+        existingItem.M += item.M;
+        existingItem.L += item.L;
+        existingItem.XL += item.XL;
+        existingItem.XXL += item.XXL;
+        existingItem.XXXL += item.XXXL;
+        existingItem.subtotal += item.subtotal;
+      } else {
+        mergedMatrix.push({ ...item });
+      }
+    });
+  });
+  
+  // 计算总数量和总金额
+  const totalQuantity = mergedMatrix.reduce((sum, item) => sum + item.subtotal, 0);
+  const totalAmount = ordersToMerge.reduce((sum, order) => sum + order.amount, 0);
+  
+  // 创建合并后的订单
+  const mergedOrder: Order = {
+    ...firstOrder,
+    id: `order_${Date.now()}_merged`,
+    orderNo: generateOrderNo(),
+    colorSizeMatrix: mergedMatrix,
+    totalQuantity,
+    amount: totalAmount,
+    status: '草稿',
+    createdBy: firstOrder.createdBy,
+    createdAt: new Date().toISOString(),
+    auditedBy: undefined,
+    auditedAt: undefined,
+    productionIssuedAt: undefined,
+    productionIssuedBy: undefined,
+    updatedAt: new Date().toISOString()
+  };
+  
+  // 保存合并后的订单
+  orders.push(mergedOrder);
+  
+  // 标记原订单为已合并
+  ordersToMerge.forEach(order => {
+    order.status = '已作废';
+    order.updatedAt = new Date().toISOString();
+  });
+  
+  localStorage.setItem(DB_KEYS.ORDERS, JSON.stringify(orders));
+  
+  return mergedOrder;
+};
+
 // 获取客户列表
 export const getCustomers = (): Customer[] => {
   if (typeof window === 'undefined') return [];
@@ -536,4 +673,177 @@ export const updateProcessProgress = (
   localStorage.setItem(`erp_order_progress_${orderId}`, JSON.stringify(progress));
   
   return true;
+};
+
+// ==================== 裁床进度跟踪 ====================
+
+// 裁床任务状态
+export type CuttingTaskStatus = '待分配' | '进行中' | '已完成' | '已取消';
+
+// 裁床任务
+export interface CuttingTask {
+  id: string;
+  taskNo: string;
+  orderId: string;
+  orderNo: string;
+  styleNo: string;
+  productName: string;
+  totalQuantity: number;
+  assignedQuantity: number;
+  completedQuantity: number;
+  status: CuttingTaskStatus;
+  operator: string;
+  startTime?: string;
+  endTime?: string;
+  estimatedTime: number; // 预计时间（分钟）
+  actualTime?: number; // 实际时间（分钟）
+  remark: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// 裁床进度
+export interface CuttingProgress {
+  taskId: string;
+  taskNo: string;
+  orderId: string;
+  orderNo: string;
+  totalQuantity: number;
+  completedQuantity: number;
+  progress: number;
+  status: CuttingTaskStatus;
+  operator: string;
+  startTime?: string;
+  endTime?: string;
+  estimatedCompletionTime?: string;
+  lastUpdateTime: string;
+}
+
+// 生成裁床任务编号
+export const generateCuttingTaskNo = (): string => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const dateStr = `${year}${month}${day}`;
+  
+  if (typeof window === 'undefined') {
+    return `CUT${dateStr}001`;
+  }
+  
+  const storedTasks = localStorage.getItem('erp_cutting_tasks');
+  const tasks: CuttingTask[] = storedTasks ? JSON.parse(storedTasks) : [];
+  
+  const todayTasks = tasks.filter(t => t.taskNo.includes(dateStr));
+  const maxSeq = todayTasks.length > 0 
+    ? Math.max(...todayTasks.map(t => parseInt(t.taskNo.slice(-3)))) 
+    : 0;
+  
+  const seq = String(maxSeq + 1).padStart(3, '0');
+  return `CUT${dateStr}${seq}`;
+};
+
+// 获取裁床任务列表
+export const getCuttingTasks = (orderId?: string): CuttingTask[] => {
+  if (typeof window === 'undefined') return [];
+  const stored = localStorage.getItem('erp_cutting_tasks');
+  const tasks: CuttingTask[] = stored ? JSON.parse(stored) : [];
+  return orderId ? tasks.filter(t => t.orderId === orderId) : tasks;
+};
+
+// 创建裁床任务
+export const createCuttingTask = (orderId: string, operator: string, estimatedTime: number): CuttingTask => {
+  const order = getOrders().find(o => o.id === orderId);
+  if (!order) {
+    throw new Error('订单不存在');
+  }
+  
+  const task: CuttingTask = {
+    id: `cutting_${Date.now()}`,
+    taskNo: generateCuttingTaskNo(),
+    orderId,
+    orderNo: order.orderNo,
+    styleNo: order.styleNo,
+    productName: order.productName,
+    totalQuantity: order.totalQuantity,
+    assignedQuantity: order.totalQuantity,
+    completedQuantity: 0,
+    status: '待分配',
+    operator,
+    estimatedTime,
+    remark: '',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  
+  const tasks = getCuttingTasks();
+  tasks.push(task);
+  localStorage.setItem('erp_cutting_tasks', JSON.stringify(tasks));
+  
+  return task;
+};
+
+// 更新裁床任务进度
+export const updateCuttingTaskProgress = (taskId: string, completedQuantity: number): CuttingTask | null => {
+  const tasks = getCuttingTasks();
+  const task = tasks.find(t => t.id === taskId);
+  if (!task) return null;
+  
+  task.completedQuantity = Math.min(completedQuantity, task.totalQuantity);
+  
+  if (task.completedQuantity === 0) {
+    task.status = '待分配';
+  } else if (task.completedQuantity < task.totalQuantity) {
+    task.status = '进行中';
+    if (!task.startTime) {
+      task.startTime = new Date().toISOString();
+    }
+  } else {
+    task.status = '已完成';
+    if (!task.endTime) {
+      task.endTime = new Date().toISOString();
+      if (task.startTime) {
+        const start = new Date(task.startTime);
+        const end = new Date(task.endTime);
+        task.actualTime = Math.round((end.getTime() - start.getTime()) / (1000 * 60));
+      }
+    }
+  }
+  
+  task.updatedAt = new Date().toISOString();
+  
+  localStorage.setItem('erp_cutting_tasks', JSON.stringify(tasks));
+  
+  return task;
+};
+
+// 获取裁床进度
+export const getCuttingProgress = (orderId: string): CuttingProgress[] => {
+  const tasks = getCuttingTasks(orderId);
+  return tasks.map(task => {
+    const progress = task.totalQuantity > 0 ? Math.round((task.completedQuantity / task.totalQuantity) * 100) : 0;
+    let estimatedCompletionTime;
+    
+    if (task.status === '进行中' && task.startTime) {
+      const start = new Date(task.startTime);
+      const estimatedEnd = new Date(start.getTime() + task.estimatedTime * 60 * 1000);
+      estimatedCompletionTime = estimatedEnd.toISOString();
+    }
+    
+    return {
+      taskId: task.id,
+      taskNo: task.taskNo,
+      orderId: task.orderId,
+      orderNo: task.orderNo,
+      totalQuantity: task.totalQuantity,
+      completedQuantity: task.completedQuantity,
+      progress,
+      status: task.status,
+      operator: task.operator,
+      startTime: task.startTime,
+      endTime: task.endTime,
+      estimatedCompletionTime,
+      lastUpdateTime: task.updatedAt
+    };
+  });
 };

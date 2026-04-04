@@ -7,24 +7,44 @@
 // ==================== 密码哈希相关 ====================
 
 /**
- * 使用SHA-256哈希密码（带盐值）
+ * 使用bcrypt哈希密码
  * 注意：这是客户端实现，生产环境应在服务端使用bcrypt
  */
-export async function hashPassword(password: string, salt?: string): Promise<string> {
-  // 生成随机盐值（如果未提供）
-  const actualSalt = salt || generateSalt();
-  
-  // 使用Web Crypto API进行SHA-256哈希
+export async function hashPassword(password: string): Promise<string> {
+  // 模拟bcrypt哈希（实际应用中应使用真实的bcrypt库）
+  // 这里使用PBKDF2作为替代方案
   const encoder = new TextEncoder();
-  const data = encoder.encode(password + actualSalt);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const data = encoder.encode(password);
+  
+  // 生成随机盐值
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  
+  // 使用PBKDF2派生密钥
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    data,
+    'PBKDF2',
+    false,
+    ['deriveBits']
+  );
+  
+  const derivedBits = await crypto.subtle.deriveBits(
+    {
+      name: 'PBKDF2',
+      salt,
+      iterations: 100000,
+      hash: 'SHA-256'
+    },
+    keyMaterial,
+    256
+  );
   
   // 转换为十六进制字符串
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  const saltHex = Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('');
+  const hashHex = Array.from(new Uint8Array(derivedBits)).map(b => b.toString(16).padStart(2, '0')).join('');
   
-  // 返回格式：salt$hash
-  return `${actualSalt}$${hashHex}`;
+  // 返回格式：$2a$10$salt$hash（模拟bcrypt格式）
+  return `$2a$10$${saltHex}$${hashHex}`;
 }
 
 /**
@@ -35,16 +55,43 @@ export async function verifyPassword(
   storedHash: string
 ): Promise<boolean> {
   try {
-    // 解析存储的哈希值
-    const [salt, hash] = storedHash.split('$');
-    if (!salt || !hash) return false;
+    // 解析存储的哈希值（模拟bcrypt格式）
+    const parts = storedHash.split('$');
+    if (parts.length !== 5) return false;
+    
+    const [, version, cost, saltHex, hashHex] = parts;
+    if (!saltHex || !hashHex) return false;
+    
+    // 转换盐值为Uint8Array
+    const salt = new Uint8Array(saltHex.match(/.{2}/g)?.map(h => parseInt(h, 16)) || []);
     
     // 重新计算哈希
-    const newHash = await hashPassword(password, salt);
-    const [, newHashHex] = newHash.split('$');
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      data,
+      'PBKDF2',
+      false,
+      ['deriveBits']
+    );
+    
+    const derivedBits = await crypto.subtle.deriveBits(
+      {
+        name: 'PBKDF2',
+        salt,
+        iterations: 100000,
+        hash: 'SHA-256'
+      },
+      keyMaterial,
+      256
+    );
+    
+    const newHashHex = Array.from(new Uint8Array(derivedBits)).map(b => b.toString(16).padStart(2, '0')).join('');
     
     // 使用常量时间比较防止时序攻击
-    return constantTimeCompare(hash, newHashHex);
+    return constantTimeCompare(hashHex, newHashHex);
   } catch {
     return false;
   }
@@ -644,4 +691,586 @@ export function destroySession(): void {
  */
 export function isSessionValid(): boolean {
   return getSession() !== null;
+}
+
+// ==================== 增强安全机制 ====================
+
+/**
+ * 会话超时管理
+ * 检查会话是否超时（30分钟无活动）
+ */
+export function isSessionTimedOut(): boolean {
+  const session = getSession();
+  if (!session) return true;
+  
+  const now = Date.now();
+  const thirtyMinutes = 30 * 60 * 1000;
+  
+  return now - session.lastActivity > thirtyMinutes;
+}
+
+/**
+ * 刷新会话活动时间
+ */
+export function refreshSession(): void {
+  const session = getSession();
+  if (session) {
+    session.lastActivity = Date.now();
+    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  }
+}
+
+/**
+ * 生成CSRF令牌
+ */
+export function generateCsrfToken(): string {
+  const token = generateSecureId('CSRF');
+  localStorage.setItem('erp_csrf_token', token);
+  return token;
+}
+
+/**
+ * 验证CSRF令牌
+ */
+export function validateCsrfToken(token: string): boolean {
+  const storedToken = localStorage.getItem('erp_csrf_token');
+  return storedToken === token;
+}
+
+/**
+ * 防止XSS攻击的输入清理
+ */
+export function sanitizeForXSS(input: string): string {
+  return input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/\//g, '&#x2F;');
+}
+
+/**
+ * 防止SQL注入的输入清理
+ */
+export function sanitizeForSQL(input: string): string {
+  return input
+    .replace(/'/g, "''")
+    .replace(/"/g, '""')
+    .replace(/\//g, '&#x2F;')
+    .replace(/\;/g, '&#x3B;')
+    .replace(/\-/g, '&#x2D;')
+    .replace(/\+/g, '&#x2B;')
+    .replace(/\*/g, '&#x2A;')
+    .replace(/\%/g, '&#x25;');
+}
+
+/**
+ * 检查密码是否被泄露（模拟）
+ */
+export async function checkPasswordBreach(password: string): Promise<boolean> {
+  // 模拟检查密码是否在泄露数据库中
+  // 实际应用中应调用第三方API
+  const commonPasswords = [
+    'password', '123456', '12345678', 'qwerty', 'abc123',
+    'monkey', 'master', 'dragon', 'letmein', 'login',
+    'admin', 'admin123', 'welcome', 'password123'
+  ];
+  
+  return commonPasswords.includes(password.toLowerCase());
+}
+
+/**
+ * 生成安全的随机密码
+ */
+export function generateSecurePassword(length: number = 12): string {
+  const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+~`|}{[]:;?><,./-=';
+  let password = '';
+  const array = new Uint8Array(length);
+  crypto.getRandomValues(array);
+  
+  for (let i = 0; i < length; i++) {
+    password += charset[array[i] % charset.length];
+  }
+  
+  return password;
+}
+
+/**
+ * 检查IP地址是否为恶意IP（模拟）
+ */
+export function isMaliciousIP(ip: string): boolean {
+  // 模拟检查恶意IP
+  // 实际应用中应使用IP黑名单服务
+  const maliciousIPs = [
+    '127.0.0.1', // 本地测试
+    '192.168.1.1' // 本地网络
+  ];
+  
+  return maliciousIPs.includes(ip);
+}
+
+/**
+ * 获取客户端IP地址（模拟）
+ */
+export function getClientIP(): string {
+  // 模拟获取客户端IP
+  // 实际应用中应从请求头或服务器端获取
+  return '192.168.1.100';
+}
+
+/**
+ * 获取用户代理信息
+ */
+export function getUserAgent(): string {
+  return navigator.userAgent || '';
+}
+
+/**
+ * 安全的JSON解析
+ */
+export function safeJSONParse<T>(json: string, defaultValue: T): T {
+  try {
+    return JSON.parse(json) as T;
+  } catch {
+    return defaultValue;
+  }
+}
+
+/**
+ * 安全的本地存储操作
+ */
+export function safeLocalStorageGet(key: string, defaultValue: any = null): any {
+  try {
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : defaultValue;
+  } catch {
+    return defaultValue;
+  }
+}
+
+/**
+ * 安全的本地存储设置
+ */
+export function safeLocalStorageSet(key: string, value: any): boolean {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * 安全的本地存储删除
+ */
+export function safeLocalStorageRemove(key: string): boolean {
+  try {
+    localStorage.removeItem(key);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ==================== 实名绑定与账户安全 ====================
+
+const REAL_NAME_BINDINGS_KEY = 'erp_real_name_bindings';
+const BANK_CARD_BINDINGS_KEY = 'erp_bank_card_bindings';
+const RISK_LOCKOUTS_KEY = 'erp_risk_lockouts';
+
+interface RealNameBinding {
+  userId: string;
+  realName: string;
+  idCard: string;
+  verified: boolean;
+  boundAt: string;
+}
+
+interface BankCardBinding {
+  userId: string;
+  cardType: '银行卡' | '支付宝' | '微信';
+  cardNumber: string;
+  cardName: string;
+  boundAt: string;
+}
+
+interface RiskLockout {
+  userId: string;
+  lockedUntil: number;
+  reason: string;
+  lockedBy: string;
+  lockedAt: string;
+}
+
+/**
+ * 绑定实名信息
+ */
+export function bindRealName(userId: string, realName: string, idCard: string): { success: boolean; message: string } {
+  try {
+    // 验证身份证格式
+    const idCardRegex = /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/;
+    if (!idCardRegex.test(idCard)) {
+      return { success: false, message: '身份证号码格式不正确' };
+    }
+    
+    // 验证姓名格式
+    const nameRegex = /^[\u4e00-\u9fa5]{2,4}$/;
+    if (!nameRegex.test(realName)) {
+      return { success: false, message: '姓名格式不正确' };
+    }
+    
+    // 检查是否已绑定
+    const bindingsData = localStorage.getItem(REAL_NAME_BINDINGS_KEY) || '{}';
+    const bindings: Record<string, RealNameBinding> = JSON.parse(bindingsData);
+    
+    if (bindings[userId]) {
+      return { success: false, message: '您已经绑定过实名信息' };
+    }
+    
+    // 检查身份证是否被其他用户绑定
+    const existingBinding = Object.values(bindings).find(b => b.idCard === idCard);
+    if (existingBinding) {
+      return { success: false, message: '该身份证已被其他用户绑定' };
+    }
+    
+    // 模拟实名验证（实际应用中应调用第三方API）
+    const isVerified = true; // 模拟验证通过
+    
+    bindings[userId] = {
+      userId,
+      realName,
+      idCard,
+      verified: isVerified,
+      boundAt: new Date().toISOString()
+    };
+    
+    localStorage.setItem(REAL_NAME_BINDINGS_KEY, JSON.stringify(bindings));
+    
+    // 记录安全事件
+    logSecurityEvent({
+      type: 'security_event',
+      severity: 'medium',
+      action: '绑定实名信息',
+      details: `用户 ${userId} 绑定了实名信息: ${realName}`,
+      success: isVerified
+    });
+    
+    return { success: true, message: '实名绑定成功' };
+  } catch (error) {
+    console.error('绑定实名信息失败:', error);
+    return { success: false, message: '绑定实名信息失败' };
+  }
+}
+
+/**
+ * 获取实名绑定信息
+ */
+export function getRealNameBinding(userId: string): RealNameBinding | null {
+  try {
+    const bindingsData = localStorage.getItem(REAL_NAME_BINDINGS_KEY) || '{}';
+    const bindings: Record<string, RealNameBinding> = JSON.parse(bindingsData);
+    return bindings[userId] || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * 绑定银行卡/支付宝/微信
+ */
+export function bindPaymentMethod(userId: string, cardType: '银行卡' | '支付宝' | '微信', cardNumber: string, cardName: string): { success: boolean; message: string } {
+  try {
+    // 验证支付方式
+    if (!['银行卡', '支付宝', '微信'].includes(cardType)) {
+      return { success: false, message: '无效的支付方式' };
+    }
+    
+    // 检查是否已绑定同类型的支付方式
+    const bindingsData = localStorage.getItem(BANK_CARD_BINDINGS_KEY) || '[]';
+    const bindings: BankCardBinding[] = JSON.parse(bindingsData);
+    
+    const existingBinding = bindings.find(b => b.userId === userId && b.cardType === cardType);
+    if (existingBinding) {
+      return { success: false, message: `您已经绑定过${cardType}` };
+    }
+    
+    // 检查卡号是否被其他用户绑定
+    const cardExists = bindings.find(b => b.cardNumber === cardNumber);
+    if (cardExists) {
+      return { success: false, message: '该支付方式已被其他用户绑定' };
+    }
+    
+    // 验证卡号格式
+    if (cardType === '银行卡') {
+      const cardRegex = /^\d{16,19}$/;
+      if (!cardRegex.test(cardNumber)) {
+        return { success: false, message: '银行卡号格式不正确' };
+      }
+    } else if (cardType === '支付宝') {
+      const alipayRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$|^1[3-9]\d{9}$/;
+      if (!alipayRegex.test(cardNumber)) {
+        return { success: false, message: '支付宝账号格式不正确' };
+      }
+    } else if (cardType === '微信') {
+      const wechatRegex = /^[a-zA-Z0-9_-]{6,20}$|^1[3-9]\d{9}$/;
+      if (!wechatRegex.test(cardNumber)) {
+        return { success: false, message: '微信号格式不正确' };
+      }
+    }
+    
+    // 添加绑定
+    const newBinding: BankCardBinding = {
+      userId,
+      cardType,
+      cardNumber,
+      cardName,
+      boundAt: new Date().toISOString()
+    };
+    
+    bindings.push(newBinding);
+    localStorage.setItem(BANK_CARD_BINDINGS_KEY, JSON.stringify(bindings));
+    
+    // 记录安全事件
+    logSecurityEvent({
+      type: 'security_event',
+      severity: 'medium',
+      action: '绑定支付方式',
+      details: `用户 ${userId} 绑定了${cardType}`,
+      success: true
+    });
+    
+    return { success: true, message: `${cardType}绑定成功` };
+  } catch (error) {
+    console.error('绑定支付方式失败:', error);
+    return { success: false, message: '绑定支付方式失败' };
+  }
+}
+
+/**
+ * 获取用户绑定的支付方式
+ */
+export function getPaymentMethods(userId: string): BankCardBinding[] {
+  try {
+    const bindingsData = localStorage.getItem(BANK_CARD_BINDINGS_KEY) || '[]';
+    const bindings: BankCardBinding[] = JSON.parse(bindingsData);
+    return bindings.filter(b => b.userId === userId);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * 检查频繁换卡行为
+ */
+export function checkFrequentCardChanges(userId: string, cardType: '银行卡' | '支付宝' | '微信'): { risky: boolean; message?: string } {
+  try {
+    const bindingsData = localStorage.getItem(BANK_CARD_BINDINGS_KEY) || '[]';
+    const bindings: BankCardBinding[] = JSON.parse(bindingsData);
+    
+    // 获取用户该类型的所有绑定记录
+    const userBindings = bindings
+      .filter(b => b.userId === userId && b.cardType === cardType)
+      .sort((a, b) => new Date(b.boundAt).getTime() - new Date(a.boundAt).getTime());
+    
+    // 检查24小时内的换卡次数
+    const now = Date.now();
+    const twentyFourHoursAgo = now - 24 * 60 * 60 * 1000;
+    
+    const recentBindings = userBindings.filter(b => new Date(b.boundAt).getTime() > twentyFourHoursAgo);
+    
+    if (recentBindings.length >= 2) {
+      return { risky: true, message: '24小时内频繁更换支付方式，存在风险' };
+    }
+    
+    return { risky: false };
+  } catch {
+    return { risky: false };
+  }
+}
+
+/**
+ * 风险锁定账户
+ */
+export function riskLockAccount(userId: string, reason: string, lockedBy: string, durationHours: number = 24): void {
+  try {
+    const lockoutsData = localStorage.getItem(RISK_LOCKOUTS_KEY) || '{}';
+    const lockouts: Record<string, RiskLockout> = JSON.parse(lockoutsData);
+    
+    lockouts[userId] = {
+      userId,
+      lockedUntil: Date.now() + durationHours * 60 * 60 * 1000,
+      reason,
+      lockedBy,
+      lockedAt: new Date().toISOString()
+    };
+    
+    localStorage.setItem(RISK_LOCKOUTS_KEY, JSON.stringify(lockouts));
+    
+    // 记录安全事件
+    logSecurityEvent({
+      type: 'security_event',
+      severity: 'high',
+      action: '风险锁定账户',
+      details: `用户 ${userId} 因 ${reason} 被锁定 ${durationHours} 小时`,
+      success: true
+    });
+  } catch (error) {
+    console.error('锁定账户失败:', error);
+  }
+}
+
+/**
+ * 检查账户是否被风险锁定
+ */
+export function isAccountRiskLocked(userId: string): { locked: boolean; remainingTime?: number; reason?: string } {
+  try {
+    const lockoutsData = localStorage.getItem(RISK_LOCKOUTS_KEY) || '{}';
+    const lockouts: Record<string, RiskLockout> = JSON.parse(lockoutsData);
+    
+    const lockout = lockouts[userId];
+    if (!lockout) return { locked: false };
+    
+    const now = Date.now();
+    if (now < lockout.lockedUntil) {
+      const remainingTime = Math.ceil((lockout.lockedUntil - now) / (1000 * 60 * 60));
+      return { locked: true, remainingTime, reason: lockout.reason };
+    }
+    
+    // 锁定已过期，移除记录
+    delete lockouts[userId];
+    localStorage.setItem(RISK_LOCKOUTS_KEY, JSON.stringify(lockouts));
+    
+    return { locked: false };
+  } catch {
+    return { locked: false };
+  }
+}
+
+/**
+ * 解除风险锁定（仅老板可操作）
+ */
+export function unlockRiskAccount(userId: string, unlockedBy: string, isBoss: boolean): { success: boolean; message: string } {
+  if (!isBoss) {
+    return { success: false, message: '只有老板可以解除风险锁定' };
+  }
+  
+  try {
+    const lockoutsData = localStorage.getItem(RISK_LOCKOUTS_KEY) || '{}';
+    const lockouts: Record<string, RiskLockout> = JSON.parse(lockoutsData);
+    
+    if (!lockouts[userId]) {
+      return { success: false, message: '账户未被风险锁定' };
+    }
+    
+    delete lockouts[userId];
+    localStorage.setItem(RISK_LOCKOUTS_KEY, JSON.stringify(lockouts));
+    
+    // 记录安全事件
+    logSecurityEvent({
+      type: 'security_event',
+      severity: 'medium',
+      action: '解除风险锁定',
+      details: `用户 ${userId} 的风险锁定被 ${unlockedBy} 解除`,
+      success: true
+    });
+    
+    return { success: true, message: '风险锁定已解除' };
+  } catch (error) {
+    console.error('解除风险锁定失败:', error);
+    return { success: false, message: '解除风险锁定失败' };
+  }
+}
+
+/**
+ * 检查异地登录
+ */
+export function checkRemoteLogin(userId: string, ipAddress: string, userAgent: string): { risky: boolean; message?: string } {
+  try {
+    const loginHistoryKey = 'erp_login_history';
+    const historyData = localStorage.getItem(loginHistoryKey) || '{}';
+    const history: Record<string, { ip: string; userAgent: string; timestamp: number }[]> = JSON.parse(historyData);
+    
+    if (!history[userId]) {
+      // 首次登录，记录信息
+      history[userId] = [{
+        ip: ipAddress,
+        userAgent,
+        timestamp: Date.now()
+      }];
+      localStorage.setItem(loginHistoryKey, JSON.stringify(history));
+      return { risky: false };
+    }
+    
+    // 获取最近的登录记录
+    const recentLogins = history[userId].slice(-5); // 最近5次登录
+    const lastLogin = recentLogins[recentLogins.length - 1];
+    
+    // 检查IP地址是否不同
+    if (lastLogin.ip !== ipAddress) {
+      return { risky: true, message: '检测到异地登录，存在风险' };
+    }
+    
+    // 更新登录历史
+    history[userId].push({
+      ip: ipAddress,
+      userAgent,
+      timestamp: Date.now()
+    });
+    
+    // 只保留最近10次登录记录
+    if (history[userId].length > 10) {
+      history[userId] = history[userId].slice(-10);
+    }
+    
+    localStorage.setItem(loginHistoryKey, JSON.stringify(history));
+    return { risky: false };
+  } catch {
+    return { risky: false };
+  }
+}
+
+/**
+ * 记录所有操作日志
+ */
+export function logOperation(userId: string, action: string, resource: string, details: string, success: boolean): void {
+  try {
+    const logsData = localStorage.getItem('erp_operation_logs') || '[]';
+    const logs: any[] = JSON.parse(logsData);
+    
+    const newLog = {
+      id: generateSecureId('OP'),
+      timestamp: new Date().toISOString(),
+      userId,
+      action,
+      resource,
+      details,
+      ipAddress: getClientIP(),
+      userAgent: getUserAgent(),
+      success
+    };
+    
+    // 保留最近50000条日志
+    logs.unshift(newLog);
+    if (logs.length > 50000) {
+      logs.splice(50000);
+    }
+    
+    localStorage.setItem('erp_operation_logs', JSON.stringify(logs));
+  } catch (error) {
+    console.error('记录操作日志失败:', error);
+  }
+}
+
+/**
+ * 获取操作日志
+ */
+export function getOperationLogs(limit?: number): any[] {
+  try {
+    const logsData = localStorage.getItem('erp_operation_logs') || '[]';
+    const logs: any[] = JSON.parse(logsData);
+    return limit ? logs.slice(0, limit) : logs;
+  } catch {
+    return [];
+  }
 }

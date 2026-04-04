@@ -5,9 +5,9 @@
   "erp_teams": [],
   "erp_users": [
     {
-      "id": "a14138fd-cbe3-49fe-aef1-72c7b643a277",
+      "id": "f4a4cba1-1f56-4945-917b-ec42e0a33e43",
       "username": "admin",
-      "password": "55655bdd31e4c0207edabde436aea843$1fc9afa5dac4fa35dac044f923ef33c6ed8d337d28f80b546f9531e263147f48",
+      "password": "8ed61ab8dc6435778fc7c61eeed53eb5$c25aa116ee58661591c8ee4b6049c84ee1efdcfc171b816290764323d027b274",
       "realName": "系统管理员",
       "role": "管理员",
       "department": "信息部",
@@ -15,14 +15,13 @@
         "all"
       ],
       "status": "启用",
-      "createdAt": "2026-04-04T05:48:33.183Z",
-      "passwordChangedAt": "2026-04-04T05:48:33.183Z",
-      "lastLogin": "2026/4/4 13:48:37"
+      "createdAt": "2026-04-04T08:52:07.937Z",
+      "passwordChangedAt": "2026-04-04T08:52:07.937Z"
     },
     {
-      "id": "65a2c95b-1ffc-4105-86bd-f8e43ed275c4",
+      "id": "de04d0d0-720f-4d84-85a6-710542919b53",
       "username": "user",
-      "password": "f76a5d716db9429cbaab260b8c585a10$bda35a0cdc8a9d75f749ac14e3e10cfacd99bf683eb43397e4c4eb9437c02ffd",
+      "password": "ce469122cbc8738f3be9cfde569663de$bf92caae88bb7d5af7b5862308102a55c4760d491c65b0380da034c917e74de7",
       "realName": "张三",
       "role": "业务员",
       "department": "业务部",
@@ -38,13 +37,13 @@
         "wallet:view"
       ],
       "status": "启用",
-      "createdAt": "2026-04-04T05:48:33.183Z",
-      "passwordChangedAt": "2026-04-04T05:48:33.183Z"
+      "createdAt": "2026-04-04T08:52:07.937Z",
+      "passwordChangedAt": "2026-04-04T08:52:07.937Z"
     },
     {
-      "id": "1310070f-71b6-4bc4-8fb9-809e677966be",
+      "id": "265bbcfc-d2fe-4ecf-b50a-a658025be45a",
       "username": "worker",
-      "password": "22a81ff54ad51c80c79fffb0d954c78c$adedf05908aab560ac187d3cb7f9c32b719325e615444efe1d081182295ad1fa",
+      "password": "f6416f2b84299821b351f39aecd2a562$1d83c7827b3ed5b510a9fe3657c1b240c7a2a49a552f92fa2eb89135b87aa2ab",
       "realName": "李四",
       "role": "车间工人",
       "department": "缝制车间",
@@ -56,8 +55,8 @@
         "wallet:view"
       ],
       "status": "启用",
-      "createdAt": "2026-04-04T05:48:33.183Z",
-      "passwordChangedAt": "2026-04-04T05:48:33.183Z"
+      "createdAt": "2026-04-04T08:52:07.937Z",
+      "passwordChangedAt": "2026-04-04T08:52:07.937Z"
     }
   ],
   "erp_roles": [],
@@ -504,6 +503,26 @@
       "createdAt": "2026-03-05 01:14:44"
     }
   ],
+  "erp_withdrawal_applications": [
+    {
+      "id": "WD001",
+      "withdrawalNo": "WD20260101001",
+      "employeeId": "EMP001",
+      "employeeName": "王五",
+      "amount": 800,
+      "method": "银行卡",
+      "accountInfo": {
+        "accountName": "王五",
+        "accountNumber": "6222020200000001",
+        "bankName": "工商银行"
+      },
+      "status": "已到账",
+      "transferReceiptImages": [],
+      "createdAt": "2026-01-25",
+      "updatedAt": "2026-01-25",
+      "processedAt": "2026-04-04T03:40:14.714Z"
+    }
+  ],
   "erp_alerts": [
     {
       "id": "xoej2o0razs",
@@ -528,26 +547,6 @@
       "relatedNo": "ORD20240110002",
       "status": "未读",
       "createdAt": "2026-04-04 01:14:44"
-    }
-  ],
-  "erp_withdrawal_applications": [
-    {
-      "id": "WD001",
-      "withdrawalNo": "WD20260101001",
-      "employeeId": "EMP001",
-      "employeeName": "王五",
-      "amount": 800,
-      "method": "银行卡",
-      "accountInfo": {
-        "accountName": "王五",
-        "accountNumber": "6222020200000001",
-        "bankName": "工商银行"
-      },
-      "status": "已到账",
-      "transferReceiptImages": [],
-      "createdAt": "2026-01-25",
-      "updatedAt": "2026-01-25",
-      "processedAt": "2026-04-04T03:40:14.714Z"
     }
   ],
   "erp_bundles": [],
@@ -634,6 +633,42 @@
     }
   ],
   "erp_security_logs": [
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnk3gbr5b72e0fc271f34edc",
+      "timestamp": "2026-04-04T08:52:07.937Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnk3gbr54415d9d5fd54adee",
+      "timestamp": "2026-04-04T08:52:07.937Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnk3fhnh54e20ad6cc7c1d40",
+      "timestamp": "2026-04-04T08:51:28.925Z"
+    },
+    {
+      "type": "security_event",
+      "severity": "high",
+      "action": "强制重置用户数据",
+      "details": "系统强制重置了用户数据，应用新的密码哈希策略",
+      "success": true,
+      "id": "LOG_mnk3fhngd433c4d6b5aba2c7",
+      "timestamp": "2026-04-04T08:51:28.924Z"
+    },
     {
       "type": "security_event",
       "severity": "high",
@@ -1141,7 +1176,7 @@
       "createdAt": "2026-01-22"
     }
   ],
-  "erp_last_sync_time": "2026-04-04T05:50:09.523Z",
+  "erp_last_sync_time": "2026-04-04T08:53:07.907Z",
   "erp_lockout": {},
   "erp_salary_freezes": [
     {
@@ -1601,7 +1636,7 @@
       "createdAt": "2024-01-15 08:00:00"
     }
   ],
-  "_savedAt": "2026-04-04T05:50:12.772Z",
+  "_savedAt": "2026-04-04T09:17:27.080Z",
   "_version": "2.1.0",
   "_security": "enhanced"
 }
