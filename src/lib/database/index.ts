@@ -9,8 +9,11 @@
  */
 
 // 加载环境变量
-import dotenv from 'dotenv';
-dotenv.config();
+if (typeof window === 'undefined') {
+  import('dotenv').then(dotenv => {
+    dotenv.config();
+  });
+}
 
 // ==================== 数据库存储键 ====================
 export const DB_KEYS = {
