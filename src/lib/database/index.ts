@@ -66,6 +66,12 @@ export const DB_KEYS = {
   REIMBURSE: 'erp_reimburse',
   RISK_EXCEPTIONS: 'erp_risk_exceptions',
   
+  // 计件工资
+  PROCESSES: 'erp_processes',
+  PIECE_RATE_RECORDS: 'erp_piece_rate_records',
+  PAY_SLIPS: 'erp_pay_slips',
+  SALARY_REPORTS: 'erp_salary_reports',
+  
   // 发货相关
   DELIVERIES: 'erp_deliveries',
   PACKING_BOXES: 'erp_packing_boxes',

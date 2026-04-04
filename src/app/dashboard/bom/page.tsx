@@ -1,525 +1,409 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Plus, 
-  Pencil, 
-  Trash2, 
-  CheckCircle, 
-  Eye, 
-  Download, 
-  XCircle,
-  Send,
-  Search,
-  RotateCcw,
-  FileText,
-  Layers,
-  TrendingUp
-} from 'lucide-react';
-import { 
-  initBOMData, 
-  getBOMs, 
-  deleteBOM, 
-  auditBOM, 
-  cancelBOM,
-  rejectBOM,
-  submitBOMAudit,
-  type BOM,
-  type BOMStatus 
-} from '@/types/bom';
-import { getCurrentUser, type CurrentUser } from '@/types/user';
-import BOMDetailDialog from '@/components/bom/BOMDetailDialog';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
+import { BOM, BOMStatus, BOMType, MaterialCategory, Material, FabricMaterial, AccessoryMaterial, PrintMaterial, WashMaterial, TailMaterial, PackingMaterial, initBOMData, getBOMs, saveBOM, deleteBOM, auditBOM, rejectBOM, submitBOMAudit, cancelBOM, getMaterials, getOrdersForBOM, checkOrderHasBOM, getBOMByOrderNo, generateBOMNo } from '@/types/bom';
+import { Order } from '@/types/order';
 
-const statusColors: Record<BOMStatus, string> = {
-  '草稿': 'bg-gray-600 text-gray-200',
-  '待审核': 'bg-yellow-600 text-white',
-  '已审核': 'bg-blue-600 text-white',
-  '已生效': 'bg-green-600 text-white',
-  '已作废': 'bg-red-900 text-red-200',
-};
+// BOM管理页面
+const BOMPage = () => {
+  const [boms, setBoms] = useState<BOM[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentBOM, setCurrentBOM] = useState<BOM | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-export default function BOMPage() {
-  const router = useRouter();
-  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
-  const [boms, setBOMs] = useState<BOM[]>([]);
-  const [filteredBOMs, setFilteredBOMs] = useState<BOM[]>([]);
-  
-  const [searchOrderNo, setSearchOrderNo] = useState('');
-  const [searchBOMNo, setSearchBOMNo] = useState('');
-  const [searchStyleNo, setSearchStyleNo] = useState('');
-  const [searchCustomer, setSearchCustomer] = useState('');
-  const [searchStatus, setSearchStatus] = useState<string>('全部');
-  
-  const [showDetailDialog, setShowDetailDialog] = useState(false);
-  const [viewingBOM, setViewingBOM] = useState<BOM | null>(null);
-  
-  const [alertMessage, setAlertMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
-
+  // 初始化数据
   useEffect(() => {
-    const user = getCurrentUser();
-    setCurrentUser(user);
     initBOMData();
-    loadBOMs();
+    loadData();
   }, []);
 
-  const loadBOMs = () => {
-    const allBOMs = getBOMs();
-    allBOMs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    setBOMs(allBOMs);
-    setFilteredBOMs(allBOMs);
+  // 加载数据
+  const loadData = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      const loadedBOMs = getBOMs();
+      const availableOrders = getOrdersForBOM();
+      setBoms(loadedBOMs);
+      setOrders(availableOrders);
+      setIsLoading(false);
+    }, 500);
   };
 
-  useEffect(() => {
-    let result = boms;
-    if (searchOrderNo) result = result.filter(b => b.orderNo.includes(searchOrderNo));
-    if (searchBOMNo) result = result.filter(b => b.bomNo.includes(searchBOMNo));
-    if (searchStyleNo) result = result.filter(b => b.styleNo.includes(searchStyleNo));
-    if (searchCustomer) result = result.filter(b => b.customerName.includes(searchCustomer));
-    if (searchStatus !== '全部') result = result.filter(b => b.status === searchStatus);
-    setFilteredBOMs(result);
-  }, [boms, searchOrderNo, searchBOMNo, searchStyleNo, searchCustomer, searchStatus]);
-
-  const handleResetSearch = () => {
-    setSearchOrderNo('');
-    setSearchBOMNo('');
-    setSearchStyleNo('');
-    setSearchCustomer('');
-    setSearchStatus('全部');
-  };
-
+  // 处理添加工单
   const handleAddBOM = () => {
-    router.push('/dashboard/bom/form');
+    setSelectedOrder('');
+    setCurrentBOM(null);
+    setIsModalOpen(true);
   };
 
-  // 导出BOM列表
-  const handleExport = () => {
-    const headers = ['BOM单号', '订单号', '款号', '品名', '客户', '订单数量', '单件成本', '总成本', '状态', '创建时间'];
-    const rows = filteredBOMs.map(b => [
-      b.bomNo, b.orderNo, b.styleNo, b.productName, b.customerName,
-      b.orderQuantity, (b.pieceCost ?? 0).toFixed(2), (b.totalCost ?? 0).toFixed(2), b.status, b.createdAt
-    ]);
-    
-    const csvContent = [
-      'BOM物料清单',
-      '导出时间：' + new Date().toLocaleString('zh-CN'),
-      '',
-      headers.join(','),
-      ...rows.map(r => r.join(','))
-    ].join('\n');
-    
-    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `BOM清单_${new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-  };
+  // 处理选择订单
+  const handleOrderSelect = (orderNo: string) => {
+    setSelectedOrder(orderNo);
+    const order = orders.find(o => o.orderNo === orderNo);
+    if (order) {
+      // 检查订单是否已有BOM
+      const existingBOM = getBOMByOrderNo(orderNo);
+      if (existingBOM) {
+        setError('该订单已有BOM，不能重复创建');
+        return;
+      }
 
-  const handleEditBOM = (bom: BOM) => {
-    if (bom.status !== '草稿' && bom.status !== '待审核') {
-      showAlert('error', '已生效BOM不可修改');
-      return;
+      // 创建新的BOM
+      const newBOM: BOM = {
+        id: `bom_${Date.now()}`,
+        bomNo: generateBOMNo(orderNo),
+        orderNo: order.orderNo,
+        styleNo: order.styleNo,
+        productName: order.productName,
+        customerName: order.customerName,
+        orderQuantity: order.totalQuantity,
+        colorSizeMatrix: order.colorSizeMatrix,
+        deliveryDate: order.deliveryDate,
+        bomVersion: '01',
+        bomType: '订单BOM',
+        status: '草稿',
+        printEmbroidery: order.printEmbroidery || [],
+        washRequirement: order.washRequirement || { washType: '普洗', colorEffect: '原色', shrinkageRate: '≤3%', ecoRequirement: [] },
+        packingRequirement: order.packingRequirement || { packingMethod: '独立包装', peBagSize: '自动匹配', cartonSize: '60×40×30cm', piecesPerCarton: 50, sizeRatio: '1:2:2:1', cartonLabelType: '英文', sticker: '', barcode: '', moistureProof: false, desiccant: false, tissuePaper: false },
+        tailRequirement: order.tailRequirement || { trimThread: false, ironing: false, inspection: false, spareButtons: 0, spareThread: '', hangTag: '', hangRope: '', foldMethod: '' },
+        fabrics: [],
+        accessories: [],
+        prints: [],
+        washes: [],
+        tails: [],
+        packings: [],
+        fabricTotalCost: 0,
+        accessoryTotalCost: 0,
+        printTotalCost: 0,
+        washTotalCost: 0,
+        tailTotalCost: 0,
+        packingTotalCost: 0,
+        pieceCost: 0,
+        totalCost: 0,
+        createdBy: 'user',
+        createdAt: new Date().toISOString(),
+      };
+      setCurrentBOM(newBOM);
     }
-    router.push(`/dashboard/bom/form?id=${bom.id}`);
   };
 
-  const handleViewBOM = (bom: BOM) => {
-    setViewingBOM(bom);
-    setShowDetailDialog(true);
-  };
+  // 处理保存BOM
+  const handleSaveBOM = () => {
+    if (!currentBOM) return;
 
-  const handleDeleteBOM = (bom: BOM) => {
-    if (bom.status !== '草稿') {
-      showAlert('error', '只有草稿状态的BOM可以删除');
-      return;
-    }
-    if (confirm(`确定要删除BOM ${bom.bomNo} 吗？`)) {
-      deleteBOM(bom.id);
-      loadBOMs();
-      showAlert('success', 'BOM删除成功');
+    try {
+      saveBOM(currentBOM);
+      loadData();
+      setIsModalOpen(false);
+      setSuccess('BOM保存成功');
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err) {
+      setError('保存失败，请重试');
+      setTimeout(() => setError(null), 3000);
     }
   };
 
-  const handleSubmitAudit = (bom: BOM) => {
-    if (bom.status !== '草稿') {
-      showAlert('error', '只有草稿状态的BOM可以提交审核');
-      return;
+  // 处理审核BOM
+  const handleAuditBOM = (bomId: string) => {
+    try {
+      auditBOM(bomId, 'admin');
+      loadData();
+      setSuccess('BOM审核通过');
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err) {
+      setError('审核失败，请重试');
+      setTimeout(() => setError(null), 3000);
     }
-    submitBOMAudit(bom.id);
-    loadBOMs();
-    showAlert('success', 'BOM已提交审核');
   };
 
-  const handleApproveBOM = (bom: BOM) => {
-    if (bom.status !== '待审核') return;
-    if (!currentUser) return;
-    auditBOM(bom.id, currentUser.username);
-    loadBOMs();
-    showAlert('success', 'BOM审核通过，已生效');
+  // 处理提交审核
+  const handleSubmitAudit = (bomId: string) => {
+    try {
+      submitBOMAudit(bomId);
+      loadData();
+      setSuccess('BOM已提交审核');
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err) {
+      setError('提交失败，请重试');
+      setTimeout(() => setError(null), 3000);
+    }
   };
 
-  const handleRejectBOM = (bom: BOM) => {
-    if (bom.status !== '待审核') return;
-    rejectBOM(bom.id);
-    loadBOMs();
-    showAlert('success', 'BOM已退回');
-  };
-
-  const showAlert = (type: 'success' | 'error', message: string) => {
-    setAlertMessage({ type, message });
-    setTimeout(() => setAlertMessage(null), 3000);
-  };
-
-  const hasPermission = (permission: string) => {
-    if (!currentUser) return false;
-    return currentUser.permissions.includes('all') || currentUser.permissions.includes(permission);
-  };
-
-  // 统计数据
-  const stats = {
-    total: boms.length,
-    draft: boms.filter(b => b.status === '草稿').length,
-    pending: boms.filter(b => b.status === '待审核').length,
-    effective: boms.filter(b => b.status === '已生效').length,
+  // 处理删除BOM
+  const handleDeleteBOM = (bomId: string) => {
+    if (confirm('确定要删除这个BOM吗？')) {
+      try {
+        deleteBOM(bomId);
+        loadData();
+        setSuccess('BOM删除成功');
+        setTimeout(() => setSuccess(null), 3000);
+      } catch (err) {
+        setError('删除失败，请重试');
+        setTimeout(() => setError(null), 3000);
+      }
+    }
   };
 
   return (
-    <DashboardLayout>
-      <div className="max-w-full mx-auto space-y-6">
-        {alertMessage && (
-          <Alert variant={alertMessage.type === 'error' ? 'destructive' : 'default'} className="border-2 border-gray-600 bg-gray-900">
-            <AlertDescription className="text-white">{alertMessage.message}</AlertDescription>
-          </Alert>
-        )}
-
-        {/* 页面标题 */}
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-              <FileText className="w-6 h-6 text-black" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white">BOM管理</h1>
-              <p className="text-gray-400 text-sm">物料清单管理，与订单数据完全联动</p>
-            </div>
-          </div>
-          {hasPermission('bom:create') && (
-            <Button onClick={handleAddBOM} className="bg-white text-black hover:bg-gray-200 font-medium">
-              <Plus className="w-4 h-4 mr-2" />
-              新增BOM
-            </Button>
-          )}
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">BOM管理</h1>
+          <p className="text-gray-500">管理服装物料清单，支持版本管理和成本核算</p>
         </div>
-
-        {/* 统计卡片 */}
-        <div className="grid grid-cols-4 gap-4">
-          <Card className="bg-gray-900 border-gray-700">
-            <CardContent className="pt-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">BOM总数</p>
-                  <p className="text-2xl font-bold text-white">{stats.total}</p>
-                </div>
-                <Layers className="w-8 h-8 text-gray-600" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-gray-900 border-gray-700">
-            <CardContent className="pt-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">草稿</p>
-                  <p className="text-2xl font-bold text-gray-300">{stats.draft}</p>
-                </div>
-                <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
-                  <span className="text-gray-400 text-sm">D</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-gray-900 border-gray-700">
-            <CardContent className="pt-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">待审核</p>
-                  <p className="text-2xl font-bold text-yellow-400">{stats.pending}</p>
-                </div>
-                <div className="w-8 h-8 bg-yellow-900 rounded-full flex items-center justify-center">
-                  <span className="text-yellow-400 text-sm">P</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-gray-900 border-gray-700">
-            <CardContent className="pt-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">已生效</p>
-                  <p className="text-2xl font-bold text-green-400">{stats.effective}</p>
-                </div>
-                <TrendingUp className="w-8 h-8 text-green-600" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* 查询区域 */}
-        <Card className="bg-gray-900 border-gray-700">
-          <CardContent className="pt-6">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <div>
-                <Label className="text-gray-400">关联订单号</Label>
-                <Input
-                  placeholder="请输入订单号"
-                  value={searchOrderNo}
-                  onChange={(e) => setSearchOrderNo(e.target.value)}
-                  className="mt-1 bg-gray-800 border-gray-600 text-white placeholder-gray-500"
-                />
-              </div>
-              <div>
-                <Label className="text-gray-400">BOM编号</Label>
-                <Input
-                  placeholder="请输入BOM编号"
-                  value={searchBOMNo}
-                  onChange={(e) => setSearchBOMNo(e.target.value)}
-                  className="mt-1 bg-gray-800 border-gray-600 text-white placeholder-gray-500"
-                />
-              </div>
-              <div>
-                <Label className="text-gray-400">款号</Label>
-                <Input
-                  placeholder="请输入款号"
-                  value={searchStyleNo}
-                  onChange={(e) => setSearchStyleNo(e.target.value)}
-                  className="mt-1 bg-gray-800 border-gray-600 text-white placeholder-gray-500"
-                />
-              </div>
-              <div>
-                <Label className="text-gray-400">客户名称</Label>
-                <Input
-                  placeholder="请输入客户名称"
-                  value={searchCustomer}
-                  onChange={(e) => setSearchCustomer(e.target.value)}
-                  className="mt-1 bg-gray-800 border-gray-600 text-white placeholder-gray-500"
-                />
-              </div>
-              <div>
-                <Label className="text-gray-400">BOM状态</Label>
-                <Select value={searchStatus} onValueChange={setSearchStatus}>
-                  <SelectTrigger className="mt-1 bg-gray-800 border-gray-600 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="全部">全部</SelectItem>
-                    <SelectItem value="草稿">草稿</SelectItem>
-                    <SelectItem value="待审核">待审核</SelectItem>
-                    <SelectItem value="已审核">已审核</SelectItem>
-                    <SelectItem value="已生效">已生效</SelectItem>
-                    <SelectItem value="已作废">已作废</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="flex justify-end mt-4 gap-2">
-              <Button variant="outline" onClick={handleResetSearch} className="border-gray-600 text-gray-300 hover:bg-gray-800">
-                <RotateCcw className="w-4 h-4 mr-2" />
-                重置
-              </Button>
-              <Button className="bg-white text-black hover:bg-gray-200">
-                <Search className="w-4 h-4 mr-2" />
-                查询
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* BOM列表 - 桌面端表格 */}
-        <Card className="bg-gray-900 border-gray-700 hidden lg:block">
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-gray-700 hover:bg-gray-800">
-                    <TableHead className="text-gray-400 w-12">序号</TableHead>
-                    <TableHead className="text-gray-400">BOM编号</TableHead>
-                    <TableHead className="text-gray-400">关联订单号</TableHead>
-                    <TableHead className="text-gray-400">款号</TableHead>
-                    <TableHead className="text-gray-400">产品名称</TableHead>
-                    <TableHead className="text-gray-400">客户名称</TableHead>
-                    <TableHead className="text-gray-400 text-right">订单数量</TableHead>
-                    <TableHead className="text-gray-400 text-right">单件成本</TableHead>
-                    <TableHead className="text-gray-400">状态</TableHead>
-                    <TableHead className="text-gray-400">创建人</TableHead>
-                    <TableHead className="text-gray-400">创建时间</TableHead>
-                    <TableHead className="text-gray-400 w-36">操作</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredBOMs.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={12} className="text-center py-12 text-gray-500">
-                        暂无BOM数据
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredBOMs.map((bom, index) => (
-                      <TableRow key={bom.id} className="border-gray-700 hover:bg-gray-800">
-                        <TableCell className="text-gray-400">{index + 1}</TableCell>
-                        <TableCell className="text-white font-medium">{bom.bomNo}</TableCell>
-                        <TableCell className="text-gray-300">{bom.orderNo}</TableCell>
-                        <TableCell className="text-gray-300">{bom.styleNo}</TableCell>
-                        <TableCell className="text-gray-300">{bom.productName}</TableCell>
-                        <TableCell className="text-gray-300">{bom.customerName}</TableCell>
-                        <TableCell className="text-right text-white">{bom.orderQuantity}</TableCell>
-                        <TableCell className="text-right text-green-400 font-medium">¥{(bom.pieceCost ?? 0).toFixed(2)}</TableCell>
-                        <TableCell>
-                          <Badge className={statusColors[bom.status]}>
-                            {bom.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-gray-400">{bom.createdBy}</TableCell>
-                        <TableCell className="text-gray-400 text-sm">{bom.createdAt}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-1">
-                            <Button size="sm" variant="ghost" onClick={() => handleViewBOM(bom)} className="text-gray-400 hover:text-white hover:bg-gray-700">
-                              <Eye className="w-4 h-4" />
-                            </Button>
-                            {hasPermission('bom:create') && bom.status === '草稿' && (
-                              <>
-                                <Button size="sm" variant="ghost" onClick={() => handleEditBOM(bom)} className="text-gray-400 hover:text-white hover:bg-gray-700">
-                                  <Pencil className="w-4 h-4" />
-                                </Button>
-                                <Button size="sm" variant="ghost" onClick={() => handleSubmitAudit(bom)} className="text-blue-400 hover:text-blue-300 hover:bg-gray-700">
-                                  <Send className="w-4 h-4" />
-                                </Button>
-                              </>
-                            )}
-                            {hasPermission('audit:approve') && bom.status === '待审核' && (
-                              <>
-                                <Button size="sm" variant="ghost" onClick={() => handleApproveBOM(bom)} className="text-green-400 hover:text-green-300 hover:bg-gray-700">
-                                  <CheckCircle className="w-4 h-4" />
-                                </Button>
-                                <Button size="sm" variant="ghost" onClick={() => handleRejectBOM(bom)} className="text-orange-400 hover:text-orange-300 hover:bg-gray-700">
-                                  <XCircle className="w-4 h-4" />
-                                </Button>
-                              </>
-                            )}
-                            {hasPermission('bom:delete') && bom.status === '草稿' && (
-                              <Button size="sm" variant="ghost" onClick={() => handleDeleteBOM(bom)} className="text-red-400 hover:text-red-300 hover:bg-gray-700">
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-            
-            <div className="flex justify-between items-center p-4 border-t border-gray-700">
-              <div className="text-sm text-gray-400">
-                共 {filteredBOMs.length} 条BOM
-              </div>
-              <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800" onClick={handleExport}>
-                <Download className="w-4 h-4 mr-2" />
-                导出
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* BOM列表 - 移动端卡片 */}
-        <div className="lg:hidden space-y-3">
-          {filteredBOMs.length === 0 ? (
-            <Card className="bg-gray-900 border-gray-700">
-              <CardContent className="py-12 text-center text-gray-500">
-                暂无BOM数据
-              </CardContent>
-            </Card>
-          ) : (
-            filteredBOMs.map((bom, index) => (
-              <Card key={bom.id} className="bg-gray-900 border-gray-700">
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <div className="text-white font-medium">{bom.bomNo}</div>
-                      <div className="text-gray-400 text-sm">{bom.orderNo}</div>
-                    </div>
-                    <Badge className={statusColors[bom.status]}>{bom.status}</Badge>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 text-sm mb-3">
-                    <div>
-                      <span className="text-gray-400">款号：</span>
-                      <span className="text-white">{bom.styleNo}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-400">客户：</span>
-                      <span className="text-white">{bom.customerName}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-400">数量：</span>
-                      <span className="text-white">{bom.orderQuantity}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-400">单件成本：</span>
-                      <span className="text-green-400 font-medium">¥{(bom.pieceCost ?? 0).toFixed(2)}</span>
-                    </div>
-                  </div>
-                  <div className="flex gap-2 flex-wrap border-t border-gray-700 pt-3">
-                    <Button size="sm" variant="outline" onClick={() => handleViewBOM(bom)} className="border-gray-600 text-gray-300">
-                      <Eye className="w-4 h-4 mr-1" />查看
-                    </Button>
-                    {hasPermission('bom:create') && bom.status === '草稿' && (
-                      <>
-                        <Button size="sm" variant="outline" onClick={() => handleEditBOM(bom)} className="border-gray-600 text-gray-300">
-                          <Pencil className="w-4 h-4 mr-1" />编辑
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => handleSubmitAudit(bom)} className="border-blue-600 text-blue-400">
-                          <Send className="w-4 h-4 mr-1" />提交
-                        </Button>
-                      </>
-                    )}
-                    {hasPermission('audit:approve') && bom.status === '待审核' && (
-                      <>
-                        <Button size="sm" variant="outline" onClick={() => handleApproveBOM(bom)} className="border-green-600 text-green-400">
-                          <CheckCircle className="w-4 h-4 mr-1" />审核
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-          <div className="text-center text-sm text-gray-400 py-2">
-            共 {filteredBOMs.length} 条BOM
-          </div>
-        </div>
+        <Button onClick={handleAddBOM}>新建BOM</Button>
       </div>
 
-      {/* BOM详情弹窗 */}
-      {showDetailDialog && viewingBOM && (
-        <BOMDetailDialog
-          bom={viewingBOM}
-          onClose={() => {
-            setShowDetailDialog(false);
-            setViewingBOM(null);
-          }}
-        />
+      {/* 消息提示 */}
+      {error && (
+        <Alert variant="destructive">
+          <AlertTitle>错误</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
-    </DashboardLayout>
+      {success && (
+        <Alert variant="default">
+          <AlertTitle>成功</AlertTitle>
+          <AlertDescription>{success}</AlertDescription>
+        </Alert>
+      )}
+
+      {/* BOM列表 */}
+      <Card>
+        <CardHeader>
+          <CardTitle>BOM列表</CardTitle>
+          <CardDescription>查看和管理所有BOM</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="space-y-4">
+              {[...Array(5)].map((_, index) => (
+                <div key={index} className="space-y-2">
+                  <Skeleton className="h-4 w-1/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>BOM编号</TableHead>
+                  <TableHead>订单编号</TableHead>
+                  <TableHead>产品名称</TableHead>
+                  <TableHead>订单数量</TableHead>
+                  <TableHead>版本</TableHead>
+                  <TableHead>状态</TableHead>
+                  <TableHead>总成本</TableHead>
+                  <TableHead>操作</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {boms.map((bom) => (
+                  <TableRow key={bom.id}>
+                    <TableCell>{bom.bomNo}</TableCell>
+                    <TableCell>{bom.orderNo}</TableCell>
+                    <TableCell>{bom.productName}</TableCell>
+                    <TableCell>{bom.orderQuantity}</TableCell>
+                    <TableCell>{bom.bomVersion}</TableCell>
+                    <TableCell>
+                      <Badge variant={
+                        bom.status === '已生效' ? 'default' :
+                        bom.status === '待审核' ? 'secondary' :
+                        bom.status === '已作废' ? 'destructive' : 'outline'
+                      }>
+                        {bom.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>¥{bom.totalCost.toFixed(2)}</TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button size="sm">查看</Button>
+                        {bom.status === '草稿' && (
+                          <Button size="sm" onClick={() => handleSubmitAudit(bom.id)}>提交审核</Button>
+                        )}
+                        {bom.status === '待审核' && (
+                          <Button size="sm" onClick={() => handleAuditBOM(bom.id)}>审核通过</Button>
+                        )}
+                        <Button size="sm" variant="destructive" onClick={() => handleDeleteBOM(bom.id)}>删除</Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* 新建BOM模态框 */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <Card className="w-full max-w-4xl">
+            <CardHeader>
+              <CardTitle>新建BOM</CardTitle>
+              <CardDescription>选择订单并创建BOM</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!selectedOrder ? (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="orderSelect">选择订单</Label>
+                    <Select onValueChange={handleOrderSelect}>
+                      <SelectTrigger id="orderSelect">
+                        <SelectValue placeholder="选择订单" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {orders.map((order) => (
+                          <SelectItem key={order.orderNo} value={order.orderNo}>
+                            {order.orderNo} - {order.productName} ({order.totalQuantity}件)
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              ) : currentBOM ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>BOM编号</Label>
+                      <Input value={currentBOM.bomNo} readOnly />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>订单编号</Label>
+                      <Input value={currentBOM.orderNo} readOnly />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>款号</Label>
+                      <Input value={currentBOM.styleNo} readOnly />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>产品名称</Label>
+                      <Input value={currentBOM.productName} readOnly />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>客户名称</Label>
+                      <Input value={currentBOM.customerName} readOnly />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>订单数量</Label>
+                      <Input value={currentBOM.orderQuantity} readOnly />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>交货日期</Label>
+                      <Input value={currentBOM.deliveryDate} readOnly />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>版本号</Label>
+                      <Input value={currentBOM.bomVersion} onChange={(e) => setCurrentBOM({ ...currentBOM, bomVersion: e.target.value })} />
+                    </div>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">物料明细</h3>
+                    <div className="space-y-2">
+                      <Label>面料</Label>
+                      <Button variant="secondary">添加面料</Button>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>辅料</Label>
+                      <Button variant="secondary">添加辅料</Button>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>印绣花</Label>
+                      <Button variant="secondary">添加印绣花</Button>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>洗水</Label>
+                      <Button variant="secondary">添加洗水</Button>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>尾部</Label>
+                      <Button variant="secondary">添加尾部</Button>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>包装</Label>
+                      <Button variant="secondary">添加包装</Button>
+                    </div>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>面料总成本</Label>
+                      <Input value={`¥${currentBOM.fabricTotalCost.toFixed(2)}`} readOnly />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>辅料总成本</Label>
+                      <Input value={`¥${currentBOM.accessoryTotalCost.toFixed(2)}`} readOnly />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>印绣花总成本</Label>
+                      <Input value={`¥${currentBOM.printTotalCost.toFixed(2)}`} readOnly />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>洗水总成本</Label>
+                      <Input value={`¥${currentBOM.washTotalCost.toFixed(2)}`} readOnly />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>尾部总成本</Label>
+                      <Input value={`¥${currentBOM.tailTotalCost.toFixed(2)}`} readOnly />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>包装总成本</Label>
+                      <Input value={`¥${currentBOM.packingTotalCost.toFixed(2)}`} readOnly />
+                    </div>
+                    <div className="space-y-2 col-span-2">
+                      <Label>总成本</Label>
+                      <Input value={`¥${currentBOM.totalCost.toFixed(2)}`} readOnly />
+                    </div>
+                    <div className="space-y-2 col-span-2">
+                      <Label>单件成本</Label>
+                      <Input value={`¥${currentBOM.pieceCost.toFixed(4)}`} readOnly />
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-end space-x-2 mt-4">
+                    <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
+                      取消
+                    </Button>
+                    <Button onClick={handleSaveBOM}>
+                      保存BOM
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center py-8">
+                  <Skeleton className="h-8 w-48" />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
   );
-}
+};
+
+export default BOMPage;

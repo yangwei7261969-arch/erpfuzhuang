@@ -7,7 +7,6 @@
     {
       "id": "fa07e805-43a9-4548-a9c6-27071b178152",
       "username": "admin",
-      "password": "$2a$10$ae008c824d980aeccf5f9c89369f7275$d1a09ea5956225f10145b94f0d85223312188658a37e0483a6adb89c9fb39c35",
       "realName": "系统管理员",
       "role": "管理员",
       "department": "信息部",
@@ -22,7 +21,6 @@
     {
       "id": "bd28789b-697d-487e-bfd9-e8f9392ed7ea",
       "username": "user",
-      "password": "$2a$10$977ad0f600ac1115e272d04cc5c5ef7b$7edfc114c0602d5796591781a1635e6aa49a7e79d6f437a1059101bfde1830cf",
       "realName": "张三",
       "role": "业务员",
       "department": "业务部",
@@ -44,7 +42,6 @@
     {
       "id": "d0d7c1b0-0192-4b94-8768-762f47fe4e1e",
       "username": "worker",
-      "password": "$2a$10$42395c947091c3864e9c9a1da7ab4e8a$82c4f2fb36b7e3517058cf82eb50742116ba58cb53a2bbc5bfe811194e05201a",
       "realName": "李四",
       "role": "车间工人",
       "department": "缝制车间",
@@ -146,7 +143,128 @@
     }
   ],
   "erp_products": [],
-  "erp_materials": [],
+  "erp_materials": [
+    {
+      "id": "1",
+      "materialCode": "ML001",
+      "materialName": "纯棉汗布",
+      "category": "面料",
+      "specification": "180g/m²",
+      "unit": "米",
+      "unitPrice": 35,
+      "supplier": "华纺布业",
+      "inventory": 5000,
+      "safetyStock": 1000
+    },
+    {
+      "id": "2",
+      "materialCode": "ML002",
+      "materialName": "涤棉斜纹布",
+      "category": "面料",
+      "specification": "200g/m²",
+      "unit": "米",
+      "unitPrice": 28,
+      "supplier": "华纺布业",
+      "inventory": 8000,
+      "safetyStock": 2000
+    },
+    {
+      "id": "3",
+      "materialCode": "ML003",
+      "materialName": "牛仔布",
+      "category": "面料",
+      "specification": "12oz",
+      "unit": "米",
+      "unitPrice": 45,
+      "supplier": "牛仔世界",
+      "inventory": 3000,
+      "safetyStock": 800
+    },
+    {
+      "id": "4",
+      "materialCode": "FL001",
+      "materialName": "树脂纽扣",
+      "category": "辅料",
+      "specification": "15mm",
+      "unit": "个",
+      "unitPrice": 0.15,
+      "supplier": "纽扣城",
+      "inventory": 50000,
+      "safetyStock": 10000
+    },
+    {
+      "id": "5",
+      "materialCode": "FL002",
+      "materialName": "金属拉链",
+      "category": "辅料",
+      "specification": "20cm",
+      "unit": "条",
+      "unitPrice": 2.5,
+      "supplier": "YKK",
+      "inventory": 3000,
+      "safetyStock": 500
+    },
+    {
+      "id": "6",
+      "materialCode": "FL003",
+      "materialName": "涤纶缝纫线",
+      "category": "辅料",
+      "specification": "40S/2",
+      "unit": "轴",
+      "unitPrice": 8,
+      "supplier": "线业公司",
+      "inventory": 2000,
+      "safetyStock": 300
+    },
+    {
+      "id": "7",
+      "materialCode": "FL004",
+      "materialName": "洗水标",
+      "category": "辅料",
+      "specification": "3×5cm",
+      "unit": "个",
+      "unitPrice": 0.05,
+      "supplier": "标牌厂",
+      "inventory": 100000,
+      "safetyStock": 20000
+    },
+    {
+      "id": "8",
+      "materialCode": "BZ001",
+      "materialName": "PE胶袋",
+      "category": "包装",
+      "specification": "30×40cm",
+      "unit": "个",
+      "unitPrice": 0.3,
+      "supplier": "包装材料厂",
+      "inventory": 20000,
+      "safetyStock": 5000
+    },
+    {
+      "id": "9",
+      "materialCode": "BZ002",
+      "materialName": "纸箱",
+      "category": "包装",
+      "specification": "60×40×30cm",
+      "unit": "个",
+      "unitPrice": 5,
+      "supplier": "纸箱厂",
+      "inventory": 500,
+      "safetyStock": 100
+    },
+    {
+      "id": "10",
+      "materialCode": "BZ003",
+      "materialName": "吊牌",
+      "category": "包装",
+      "specification": "5×8cm",
+      "unit": "个",
+      "unitPrice": 0.1,
+      "supplier": "印刷厂",
+      "inventory": 30000,
+      "safetyStock": 5000
+    }
+  ],
   "erp_orders": [],
   "erp_samples": [],
   "erp_size_specs": [
@@ -1195,7 +1313,7 @@
       "createdAt": "2026-01-22"
     }
   ],
-  "erp_last_sync_time": "2026-04-04T10:28:47.760Z",
+  "erp_last_sync_time": "2026-04-04T10:57:51.970Z",
   "erp_lockout": {},
   "erp_salary_freezes": [
     {
@@ -1655,7 +1773,7 @@
       "createdAt": "2024-01-15 08:00:00"
     }
   ],
-  "_savedAt": "2026-04-04T10:29:12.109Z",
+  "_savedAt": "2026-04-04T10:58:02.448Z",
   "_version": "2.1.0",
   "_security": "enhanced"
 }
